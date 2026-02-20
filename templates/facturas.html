@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Facturas - Tienda Virtual{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Gestión de Facturas</h2>
+    
+    <div class="section-buttons">
+        <button class="btn btn-primary">+ Nueva Factura</button>
+        <button class="btn btn-secondary">Descargar Reporte</button>
+    </div>
+
+    <div class="invoices-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Factura #</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>FAC-001</td>
+                    <td>Juan Pérez</td>
+                    <td>2026-02-15</td>
+                    <td>$1,299.99</td>
+                    <td><span class="badge badge-paid">Pagada</span></td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>FAC-002</td>
+                    <td>María García</td>
+                    <td>2026-02-18</td>
+                    <td>$2,499.98</td>
+                    <td><span class="badge badge-paid">Pagada</span></td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>FAC-003</td>
+                    <td>Carlos López</td>
+                    <td>2026-02-19</td>
+                    <td>$899.99</td>
+                    <td><span class="badge badge-pending">Pendiente</span></td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>FAC-004</td>
+                    <td>Ana Martínez</td>
+                    <td>2026-02-18</td>
+                    <td>$3,199.97</td>
+                    <td><span class="badge badge-paid">Pagada</span></td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>FAC-005</td>
+                    <td>Roberto Rodríguez</td>
+                    <td>2026-02-17</td>
+                    <td>$1,599.98</td>
+                    <td><span class="badge badge-paid">Pagada</span></td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="invoice-stats">
+        <h3>Resumen de Facturas</h3>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h4>5,234</h4>
+                <p>Total de Facturas</p>
+            </div>
+            <div class="stat-box">
+                <h4>$485,320</h4>
+                <p>Ingresos Totales</p>
+            </div>
+            <div class="stat-box">
+                <h4>$42,150</h4>
+                <p>Pendiente de Pago</p>
+            </div>
+            <div class="stat-box">
+                <h4>94%</h4>
+                <p>Tasa de Cobranza</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

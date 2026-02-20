@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Tienda Virtual{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <h2>¡Bienvenido a Nuestra Tienda Virtual!</h2>
+        <p>Ofertas exclusivas y productos de calidad a los mejores precios</p>
+        <button class="btn btn-primary">Explorar Productos</button>
+    </section>
+
+    <section class="features">
+        <h3>¿Por qué elegirnos?</h3>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h4>📦 Envío Rápido</h4>
+                <p>Entrega en 2-3 días hábiles a cualquier parte del país</p>
+            </div>
+            <div class="feature-card">
+                <h4>💳 Pagos Seguros</h4>
+                <p>Múltiples formas de pago con máxima seguridad</p>
+            </div>
+            <div class="feature-card">
+                <h4>⭐ Productos de Calidad</h4>
+                <p>Seleccionamos los mejores productos para ti</p>
+            </div>
+            <div class="feature-card">
+                <h4>🎁 Ofertas Especiales</h4>
+                <p>Descuentos y promociones exclusivas semanales</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="latest-products">
+        <h3>Productos Destacados</h3>
+        <div class="products-list">
+            <div class="product-item">
+                <h5>Laptop Gaming</h5>
+                <p>$1,299.99</p>
+            </div>
+            <div class="product-item">
+                <h5>Smartphone Premium</h5>
+                <p>$899.99</p>
+            </div>
+            <div class="product-item">
+                <h5>Tablet 10"</h5>
+                <p>$499.99</p>
+            </div>
+            <div class="product-item">
+                <h5>Auriculares Inalámbricos</h5>
+                <p>$199.99</p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

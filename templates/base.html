@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tienda Virtual{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Encabezado -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">🛍️ Tienda Virtual</h1>
+            <p class="tagline">Tu tienda online confiable</p>
+        </div>
+    </header>
+
+    <!-- Menú de Navegación -->
+    <nav class="navbar">
+        <ul class="nav-list">
+            <li><a href="{{ url_for('index') }}" class="nav-link">Inicio</a></li>
+            <li><a href="{{ url_for('productos') }}" class="nav-link">Productos</a></li>
+            <li><a href="{{ url_for('clientes') }}" class="nav-link">Clientes</a></li>
+            <li><a href="{{ url_for('facturas') }}" class="nav-link">Facturas</a></li>
+            <li><a href="{{ url_for('about') }}" class="nav-link">Acerca de</a></li>
+            <li><a href="{{ url_for('contacto') }}" class="nav-link">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Tienda Virtual. Todos los derechos reservados.</p>
+            <p>Contacto: info@tiendevirtual.com | Teléfono: +1 (555) 123-4567</p>
+            <p>Desarrollado con Flask y Jinja2</p>
+        </div>
+    </footer>
+</body>
+</html>

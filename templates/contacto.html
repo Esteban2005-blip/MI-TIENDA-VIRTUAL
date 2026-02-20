@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Contacto - Tienda Virtual{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Contáctanos</h2>
+    
+    <div class="contact-section">
+        <div class="contact-info">
+            <h3>Información de Contacto</h3>
+            
+            <div class="info-item">
+                <h4>📍 Dirección</h4>
+                <p>Calle Principal 123, Piso 5<br>Centro de Negocios, Madrid 28001<br>España</p>
+            </div>
+
+            <div class="info-item">
+                <h4>📞 Teléfono</h4>
+                <p>
+                    Atención al Cliente: +34 91 123 4567<br>
+                    Soporte Técnico: +34 91 789 0123<br>
+                    Horario: Lunes a Viernes, 9:00 - 18:00
+                </p>
+            </div>
+
+            <div class="info-item">
+                <h4>📧 Email</h4>
+                <p>
+                    General: info@tiendevirtual.com<br>
+                    Soporte: soporte@tiendevirtual.com<br>
+                    Ventas: ventas@tiendevirtual.com
+                </p>
+            </div>
+
+            <div class="info-item">
+                <h4>⏰ Horario</h4>
+                <p>
+                    Lunes - Viernes: 9:00 AM - 6:00 PM<br>
+                    Sábado: 10:00 AM - 2:00 PM<br>
+                    Domingo: Cerrado
+                </p>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h3>Formulario de Contacto</h3>
+            <form>
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="asunto">Asunto:</label>
+                    <input type="text" id="asunto" name="asunto" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="mensaje">Mensaje:</label>
+                    <textarea id="mensaje" name="mensaje" rows="6" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo de Consulta:</label>
+                    <select id="tipo" name="tipo">
+                        <option>Selecciona una opción</option>
+                        <option>Consulta General</option>
+                        <option>Reporte de Problema</option>
+                        <option>Sugerencia</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Enviar Mensaje</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="faq-section">
+        <h3>Preguntas Frecuentes</h3>
+        <div class="faq-item">
+            <h4>¿Cuál es el tiempo de entrega?</h4>
+            <p>Ofrecemos envío estándar en 3-5 días hábiles y envío express en 24-48 horas para la mayoría de ubicaciones.</p>
+        </div>
+        <div class="faq-item">
+            <h4>¿Aceptan devoluciones?</h4>
+            <p>Sí, aceptamos devoluciones dentro de 30 días de la compra con producto en condición original.</p>
+        </div>
+        <div class="faq-item">
+            <h4>¿Métodos de pago aceptados?</h4>
+            <p>Aceptamos tarjetas de crédito, débito, transferencia bancaria y billeteras digitales.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

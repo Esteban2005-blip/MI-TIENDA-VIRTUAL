@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes - Tienda Virtual{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Gestión de Clientes</h2>
+    
+    <div class="section-buttons">
+        <button class="btn btn-primary">+ Nuevo Cliente</button>
+    </div>
+
+    <div class="customers-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Ciudad</th>
+                    <th>Compras</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>001</td>
+                    <td>Juan Pérez</td>
+                    <td>juan.perez@email.com</td>
+                    <td>+1-555-1001</td>
+                    <td>Madrid</td>
+                    <td>12</td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>María García</td>
+                    <td>maria.garcia@email.com</td>
+                    <td>+1-555-1002</td>
+                    <td>Barcelona</td>
+                    <td>8</td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>003</td>
+                    <td>Carlos López</td>
+                    <td>carlos.lopez@email.com</td>
+                    <td>+1-555-1003</td>
+                    <td>Valencia</td>
+                    <td>15</td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>004</td>
+                    <td>Ana Martínez</td>
+                    <td>ana.martinez@email.com</td>
+                    <td>+1-555-1004</td>
+                    <td>Sevilla</td>
+                    <td>5</td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>005</td>
+                    <td>Roberto Rodríguez</td>
+                    <td>roberto.rodri@email.com</td>
+                    <td>+1-555-1005</td>
+                    <td>Bilbao</td>
+                    <td>20</td>
+                    <td><button class="btn-small">Ver</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="customer-stats">
+        <h3>Estadísticas de Clientes</h3>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h4>10,547</h4>
+                <p>Total de Clientes</p>
+            </div>
+            <div class="stat-box">
+                <h4>2,341</h4>
+                <p>Nuevos Este Mes</p>
+            </div>
+            <div class="stat-box">
+                <h4>$2.5M</h4>
+                <p>Ingresos Generados</p>
+            </div>
+            <div class="stat-box">
+                <h4>87%</h4>
+                <p>Tasa de Retención</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
