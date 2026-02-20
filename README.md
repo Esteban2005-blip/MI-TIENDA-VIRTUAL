@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🛍️ Tienda Virtual Flask
 
 Una aplicación web moderna construida con Flask y Jinja2 para gestionar una tienda virtual completa.
@@ -180,3 +181,7 @@ Desarrollado como proyecto educativo de la Semana 10 del curso de Flask.
 ---
 
 **¡Disfruta desarrollando con Flask! 🎉**
+=======
+# TIENDA-VIRTUAL
+MI TIENDA VIRTUAL
+>>>>>>> 8f888fc26273644df5cdf63ad3f323a07e82a182
