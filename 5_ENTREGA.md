@@ -315,3 +315,34 @@ Si tienes preguntas después de entregar:
 
 ¡Éxito en tu entrega! 🎊
 
+
+## 🧾 Sistema de Inventario (Semana 10: POO, Colecciones y SQLite)
+
+Se añadió una implementación de ejemplo para gestionar el inventario utilizando POO y SQLite. Archivos clave añadidos:
+
+- `inventory.py`: Define la clase `Product` y la clase `Inventory` (usa un diccionario {id: Product} para búsquedas rápidas).
+- `db.py`: Helper para operaciones SQLite (crear tabla, insertar, actualizar, eliminar, listar y buscar).
+- `db_init.py`: Script para inicializar la base de datos: crea `data/inventory.db`.
+- `inventory_cli.py`: Interfaz de consola para realizar operaciones CRUD (añadir, eliminar, actualizar, buscar, listar).
+
+Cómo se usan las colecciones:
+
+- El `Inventory` usa un `dict` para acceso O(1) por `id`. Las búsquedas por nombre emplean recorridos y filtrado (listas).
+- Las tuplas y listas se usan al leer filas desde SQLite (`list_products()` devuelve una `List[Product]`).
+
+Instrucciones rápidas para probar localmente (desde la raíz del proyecto):
+
+```bash
+# 1. Inicializar la base de datos (crea ./data/inventory.db)
+python db_init.py
+
+# 2. Ejecutar la interfaz de consola
+python inventory_cli.py
+```
+
+Notas:
+
+- Al añadir un producto por consola debes proporcionar un `ID` único (entero).
+- Todos los cambios hechos desde la CLI se persisten en SQLite inmediatamente.
+- El código está pensado como ejemplo didáctico; puede integrarse con la app Flask ampliando `db.py` o usando SQLAlchemy.
+
