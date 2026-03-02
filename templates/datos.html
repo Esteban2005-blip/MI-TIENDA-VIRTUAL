@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block title %}Datos - Tienda Virtual{% endblock %}
+
+{% block content %}
+<style>
+    .datos-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .datos-title {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2c3e50;
+    }
+
+    .datos-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .tab-button {
+        padding: 10px 20px;
+        border: none;
+        background-color: #ecf0f1;
+        cursor: pointer;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: all 0.3s;
+    }
+
+    .tab-button.active {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .tab-button:hover {
+        background-color: #2980b9;
+        color: white;
+    }
+
+    .tab-content {
+        display: none;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        min-height: 400px;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .datos-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .datos-table th,
+    .datos-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .datos-table th {
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+    }
+
+    .datos-table tr:hover {
+        background-color: #ecf0f1;
+    }
+
+    .txt-data {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 14px;
+        line-height: 1.6;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .empty-message {
+        text-align: center;
+        color: #7f8c8d;
+        padding: 40px;
+        font-size: 16px;
+    }
+
+    .json-preview {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 13px;
+        overflow-x: auto;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .csv-wrapper {
+        overflow-x: auto;
+    }
+
+    .section-description {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #ecf0f1;
+        border-left: 4px solid #3498db;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="datos-container">
+    <h1 class="datos-title">📊 Gestión de Datos - Persistencia en Múltiples Formatos</h1>
+    
+    <div class="section-description">
+        <p><strong>Estado de persistencia del sistema:</strong> Los datos se guardan automáticamente en TXT, JSON, CSV y SQLite cuando se crean o modifican productos.</p>
+    </div>
+
+    <!-- Tabs de navegación -->
+    <div class="datos-tabs">
+        <button class="tab-button active" onclick="mostrarTab('txt')">📄 Formato TXT</button>
+        <button class="tab-button" onclick="mostrarTab('json')">📋 Formato JSON</button>
+        <button class="tab-button" onclick="mostrarTab('csv')">📊 Formato CSV</button>
+    </div>
+
+    <!-- Tab 1: TXT -->
+    <div id="txt" class="tab-content active">
+        <h2>Datos en Formato TXT</h2>
+        <p>Archivo: <code>inventario/data/datos.txt</code></p>
+        {% if datos_txt %}
+            <div class="txt-data">
+                {% for linea in datos_txt %}{{ linea }}{% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-message">
+                ℹ️ No hay datos en formato TXT. Crea un producto para generar datos.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Tab 2: JSON -->
+    <div id="json" class="tab-content">
+        <h2>Datos en Formato JSON</h2>
+        <p>Archivo: <code>inventario/data/datos.json</code></p>
+        {% if datos_json %}
+            <div class="json-preview">
+                {{ datos_json | tojson(indent=4) }}
+            </div>
+            <table class="datos-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Categoría</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in datos_json %}
+                    <tr>
+                        <td>{{ producto.id }}</td>
+                        <td>{{ producto.nombre }}</td>
+                        <td>{{ producto.descripcion }}</td>
+                        <td>${{ "%.2f" | format(producto.precio) }}</td>
+                        <td>{{ producto.cantidad }}</td>
+                        <td>{{ producto.categoria }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-message">
+                ℹ️ No hay datos en formato JSON. Crea un producto para generar datos.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Tab 3: CSV -->
+    <div id="csv" class="tab-content">
+        <h2>Datos en Formato CSV</h2>
+        <p>Archivo: <code>inventario/data/datos.csv</code></p>
+        {% if datos_csv %}
+            <div class="csv-wrapper">
+                <table class="datos-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Categoría</th>
+                            <th>Fecha Creación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in datos_csv %}
+                        <tr>
+                            <td>{{ producto.id }}</td>
+                            <td>{{ producto.nombre }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>${{ producto.precio }}</td>
+                            <td>{{ producto.cantidad }}</td>
+                            <td>{{ producto.categoria }}</td>
+                            <td>{{ producto.fecha_creacion }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-message">
+                ℹ️ No hay datos en formato CSV. Crea un producto para generar datos.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Botón para volver -->
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="{{ url_for('formulario_producto') }}" style="
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        " onmouseover="this.style.backgroundColor='#2980b9'" onmouseout="this.style.backgroundColor='#3498db'">
+            ➕ Crear Producto
+        </a>
+    </div>
+</div>
+
+<script>
+    function mostrarTab(tabName) {
+        // Ocultar todos los tabs
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Desactivar todos los botones
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        // Mostrar tab seleccionado
+        document.getElementById(tabName).classList.add('active');
+        
+        // Activar botón seleccionado
+        event.target.classList.add('active');
+    }
+</script>
+{% endblock %}

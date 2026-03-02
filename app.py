@@ -1,15 +1,27 @@
 """
 Aplicación Flask - Tienda Virtual
-Semana 10: Plantillas dinámicas con Jinja2
+Semana 13: Persistencia de datos (TXT, JSON, CSV, SQLite)
 """
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from inventario.bd import init_db, db
+from inventario.productos import Producto
+from inventario.inventario import GestorArchivos
+import os
 
 # Crear instancia de la aplicación Flask
 app = Flask(__name__)
 
-# Configuración básica
+# Configuración de la aplicación
 app.config['DEBUG'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///inventario.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Inicializar base de datos
+init_db(app)
+
+# Crear instancia del gestor de archivos
+gestor_archivos = GestorArchivos()
 
 
 # ===================== RUTAS PRINCIPALES =====================
@@ -48,6 +60,176 @@ def facturas():
 def contacto():
     """Página de Contacto - Información de contacto y formulario"""
     return render_template('contacto.html')
+
+
+# ===================== RUTAS DE PERSISTENCIA DE DATOS =====================
+
+@app.route('/datos')
+def datos():
+    """Página que muestra datos en diferentes formatos"""
+    datos_txt = gestor_archivos.leer_txt()
+    datos_json = gestor_archivos.leer_json()
+    datos_csv = gestor_archivos.leer_csv()
+    
+    return render_template('datos.html', 
+                         datos_txt=datos_txt,
+                         datos_json=datos_json,
+                         datos_csv=datos_csv)
+
+
+# ===================== RUTAS CRUD DE PRODUCTOS (SQLite) =====================
+
+@app.route('/api/productos', methods=['GET'])
+def obtener_productos():
+    """Obtener todos los productos de la base de datos"""
+    try:
+        productos = Producto.query.all()
+        return jsonify([p.to_dict() for p in productos])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/productos/<int:id>', methods=['GET'])
+def obtener_producto(id):
+    """Obtener un producto específico"""
+    try:
+        producto = Producto.query.get(id)
+        if not producto:
+            return jsonify({'error': 'Producto no encontrado'}), 404
+        return jsonify(producto.to_dict())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/productos/crear', methods=['POST'])
+def crear_producto():
+    """Crear un nuevo producto"""
+    try:
+        datos = request.get_json() if request.is_json else request.form.to_dict()
+        
+        # Validar datos necesarios
+        if not datos.get('nombre') or not datos.get('precio') or not datos.get('categoria'):
+            return jsonify({'error': 'Faltan campos requeridos'}), 400
+        
+        # Crear producto en SQLite
+        nuevo_producto = Producto(
+            nombre=datos.get('nombre'),
+            descripcion=datos.get('descripcion', ''),
+            precio=float(datos.get('precio', 0)),
+            cantidad=int(datos.get('cantidad', 0)),
+            categoria=datos.get('categoria', '')
+        )
+        
+        db.session.add(nuevo_producto)
+        db.session.commit()
+        
+        # Guardar también en archivos
+        producto_dict = nuevo_producto.to_dict()
+        gestor_archivos.guardar_en_json(producto_dict)
+        gestor_archivos.guardar_en_csv(producto_dict)
+        gestor_archivos.guardar_en_txt(f"Producto creado: {nuevo_producto.nombre}")
+        
+        return jsonify({
+            'mensaje': 'Producto creado exitosamente',
+            'producto': producto_dict
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/productos/<int:id>/actualizar', methods=['PUT', 'POST'])
+def actualizar_producto(id):
+    """Actualizar un producto existente"""
+    try:
+        producto = Producto.query.get(id)
+        if not producto:
+            return jsonify({'error': 'Producto no encontrado'}), 404
+        
+        datos = request.get_json() if request.is_json else request.form.to_dict()
+        
+        # Actualizar campos
+        if 'nombre' in datos:
+            producto.nombre = datos['nombre']
+        if 'descripcion' in datos:
+            producto.descripcion = datos['descripcion']
+        if 'precio' in datos:
+            producto.precio = float(datos['precio'])
+        if 'cantidad' in datos:
+            producto.cantidad = int(datos['cantidad'])
+        if 'categoria' in datos:
+            producto.categoria = datos['categoria']
+        
+        db.session.commit()
+        
+        # Registrar en archivos
+        gestor_archivos.guardar_en_txt(f"Producto actualizado: {producto.nombre}")
+        
+        return jsonify({
+            'mensaje': 'Producto actualizado exitosamente',
+            'producto': producto.to_dict()
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/productos/<int:id>/eliminar', methods=['DELETE', 'POST'])
+def eliminar_producto(id):
+    """Eliminar un producto"""
+    try:
+        producto = Producto.query.get(id)
+        if not producto:
+            return jsonify({'error': 'Producto no encontrado'}), 404
+        
+        nombre_producto = producto.nombre
+        db.session.delete(producto)
+        db.session.commit()
+        
+        # Registrar en archivos
+        gestor_archivos.guardar_en_txt(f"Producto eliminado: {nombre_producto}")
+        
+        return jsonify({'mensaje': 'Producto eliminado exitosamente'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/producto/form', methods=['GET', 'POST'])
+def formulario_producto():
+    """Formulario para crear/editar productos"""
+    if request.method == 'POST':
+        try:
+            nombre = request.form.get('nombre')
+            descripcion = request.form.get('descripcion')
+            precio = request.form.get('precio')
+            cantidad = request.form.get('cantidad')
+            categoria = request.form.get('categoria')
+            
+            nuevo_producto = Producto(
+                nombre=nombre,
+                descripcion=descripcion,
+                precio=float(precio),
+                cantidad=int(cantidad),
+                categoria=categoria
+            )
+            
+            db.session.add(nuevo_producto)
+            db.session.commit()
+            
+            # Guardar en archivos
+            producto_dict = nuevo_producto.to_dict()
+            gestor_archivos.guardar_en_json(producto_dict)
+            gestor_archivos.guardar_en_csv(producto_dict)
+            gestor_archivos.guardar_en_txt(f"Nuevo producto: {nombre} - ${precio}")
+            
+            return redirect(url_for('producto_form'))
+        except Exception as e:
+            print(f"Error al crear producto: {e}")
+            return redirect(url_for('producto_form'))
+    
+    productos = Producto.query.all()
+    return render_template('producto_form.html', productos=productos)
 
 
 # ===================== MANEJO DE ERRORES =====================
@@ -173,9 +355,9 @@ def internal_server_error(error):
 if __name__ == '__main__':
     # Ejecutar la aplicación
     print("=" * 50)
-    print("🚀 Iniciando Tienda Virtual Flask")
+    print("[INICIO] Tienda Virtual Flask")
     print("=" * 50)
-    print("📍 Accede a: http://localhost:5000")
+    print("[INFO] Accede a: http://localhost:5000")
     print("=" * 50)
     app.run(
         host='localhost',

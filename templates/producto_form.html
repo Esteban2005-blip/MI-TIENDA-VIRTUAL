@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario de Productos - Tienda Virtual{% endblock %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .form-title {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2c3e50;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .form-section {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .form-section h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #bdc3c7;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: Arial, sans-serif;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 14px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #229954;
+    }
+
+    .productos-list {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        grid-column: 1 / -1;
+    }
+
+    .productos-list h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+    }
+
+    .productos-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .productos-table th,
+    .productos-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .productos-table th {
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+    }
+
+    .productos-table tr:hover {
+        background-color: #ecf0f1;
+    }
+
+    .precio {
+        color: #27ae60;
+        font-weight: bold;
+    }
+
+    .empty-message {
+        text-align: center;
+        color: #7f8c8d;
+        padding: 40px;
+        font-size: 16px;
+    }
+
+    .datos-link {
+        display: inline-block;
+        padding: 12px 30px;
+        background-color: #e74c3c;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        transition: background-color 0.3s;
+    }
+
+    .datos-link:hover {
+        background-color: #c0392b;
+    }
+
+    .info-box {
+        background-color: #ecf0f1;
+        padding: 15px;
+        border-left: 4px solid #3498db;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .productos-list {
+            grid-column: 1;
+        }
+
+        .productos-table {
+            font-size: 14px;
+        }
+
+        .productos-table th,
+        .productos-table td {
+            padding: 8px;
+        }
+    }
+</style>
+
+<div class="form-container">
+    <h1 class="form-title">🛒 Gestión de Productos</h1>
+    
+    <a href="{{ url_for('datos') }}" class="datos-link">📊 Ver Datos Guardados</a>
+
+    <div class="form-grid">
+        <!-- Formulario -->
+        <div class="form-section">
+            <h2>Crear Nuevo Producto</h2>
+            
+            <div class="info-box">
+                <p><strong>ℹ️ Nota:</strong> Los datos se guardan automáticamente en:</p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>Base de datos SQLite</li>
+                    <li>Archivo JSON</li>
+                    <li>Archivo CSV</li>
+                    <li>Archivo TXT (log)</li>
+                </ul>
+            </div>
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="nombre">📝 Nombre del Producto *</label>
+                    <input 
+                        type="text" 
+                        id="nombre" 
+                        name="nombre" 
+                        required 
+                        placeholder="Ej: Laptop Dell XPS"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">📄 Descripción</label>
+                    <textarea 
+                        id="descripcion" 
+                        name="descripcion" 
+                        placeholder="Describe el producto..."
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="precio">💲 Precio *</label>
+                    <input 
+                        type="number" 
+                        id="precio" 
+                        name="precio" 
+                        step="0.01" 
+                        min="0" 
+                        required 
+                        placeholder="Ej: 999.99"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidad">📦 Cantidad en Stock</label>
+                    <input 
+                        type="number" 
+                        id="cantidad" 
+                        name="cantidad" 
+                        min="0" 
+                        value="0" 
+                        placeholder="Ej: 10"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">🏷️ Categoría *</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="">-- Selecciona una categoría --</option>
+                        <option value="Electrónica">Electrónica</option>
+                        <option value="Ropa">Ropa</option>
+                        <option value="Alimentos">Alimentos</option>
+                        <option value="Hogar">Hogar</option>
+                        <option value="Deportes">Deportes</option>
+                        <option value="Libros">Libros</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">✅ Crear Producto</button>
+            </form>
+        </div>
+
+        <!-- Información de persistencia -->
+        <div class="form-section">
+            <h2>📊 Sistema de Persistencia</h2>
+            
+            <div class="info-box">
+                <h3 style="margin-top: 0; color: #2c3e50;">TXT (Texto Plano)</h3>
+                <p>Logs de acciones en el sistema. Cada operación queda registrada con timestamp.</p>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-top: 0; color: #2c3e50;">JSON</h3>
+                <p>Datos estructurados en formato JSON para consumo por APIs y aplicaciones externas.</p>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-top: 0; color: #2c3e50;">CSV</h3>
+                <p>Datos en formato de valores separados por comas, compatible con Excel.</p>
+            </div>
+
+            <div class="info-box">
+                <h3 style="margin-top: 0; color: #2c3e50;">SQLite</h3>
+                <p>Base de datos relacional local (inventario.db) para consultas complejas y transacciones.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de productos -->
+    <div class="form-grid">
+        <div class="productos-list">
+            <h2>Productos Registrados en la Base de Datos</h2>
+            
+            {% if productos %}
+                <p style="color: #7f8c8d; margin-bottom: 20px;">
+                    Total de productos: <strong>{{ productos|length }}</strong>
+                </p>
+                <table class="productos-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Categoría</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td>#{{ producto.id }}</td>
+                            <td><strong>{{ producto.nombre }}</strong></td>
+                            <td>{{ producto.descripcion if producto.descripcion else '-' }}</td>
+                            <td class="precio">${{ "%.2f" | format(producto.precio) }}</td>
+                            <td>{{ producto.cantidad }}</td>
+                            <td>{{ producto.categoria }}</td>
+                            <td>{{ producto.fecha_creacion.strftime('%d/%m/%Y %H:%M') if producto.fecha_creacion else '-' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-message">
+                    📭 No hay productos registrados aún. ¡Crea tu primer producto!
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

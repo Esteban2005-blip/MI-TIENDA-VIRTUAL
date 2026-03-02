@@ -1,0 +1,5 @@
+[2026-03-02 09:22:49] Producto creado: Laptop Dell XPS - $1299.99
+[2026-03-02 09:22:49] Producto creado: Mouse Logitech MX Master - $99.99
+[2026-03-02 09:22:49] Producto creado: Teclado Mecánico RGB - $149.99
+[2026-03-02 09:22:49] Producto creado: Monitor LG 27" - $399.99
+[2026-03-02 09:22:49] Producto creado: Headphones Sony WH-1000 - $279.99

@@ -1,0 +1,47 @@
+[
+    {
+        "id": 1,
+        "nombre": "Laptop Dell XPS",
+        "descripcion": "Laptop de alto rendimiento para programación",
+        "precio": 1299.99,
+        "cantidad": 5,
+        "categoria": "Electrónica",
+        "fecha_creacion": "2026-03-02 14:22:49"
+    },
+    {
+        "id": 2,
+        "nombre": "Mouse Logitech MX Master",
+        "descripcion": "Mouse profesional inalámbrico",
+        "precio": 99.99,
+        "cantidad": 15,
+        "categoria": "Electrónica",
+        "fecha_creacion": "2026-03-02 14:22:49"
+    },
+    {
+        "id": 3,
+        "nombre": "Teclado Mecánico RGB",
+        "descripcion": "Teclado mecánico con retroiluminación RGB",
+        "precio": 149.99,
+        "cantidad": 8,
+        "categoria": "Electrónica",
+        "fecha_creacion": "2026-03-02 14:22:49"
+    },
+    {
+        "id": 4,
+        "nombre": "Monitor LG 27\"",
+        "descripcion": "Monitor 4K de 27 pulgadas",
+        "precio": 399.99,
+        "cantidad": 3,
+        "categoria": "Electrónica",
+        "fecha_creacion": "2026-03-02 14:22:49"
+    },
+    {
+        "id": 5,
+        "nombre": "Headphones Sony WH-1000",
+        "descripcion": "Audífonos con cancelación de ruido",
+        "precio": 279.99,
+        "cantidad": 10,
+        "categoria": "Electrónica",
+        "fecha_creacion": "2026-03-02 14:22:49"
+    }
+]

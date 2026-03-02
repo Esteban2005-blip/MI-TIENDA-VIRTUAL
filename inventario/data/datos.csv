@@ -1,0 +1,6 @@
+id,nombre,descripcion,precio,cantidad,categoria,fecha_creacion
+1,Laptop Dell XPS,Laptop de alto rendimiento para programación,1299.99,5,Electrónica,2026-03-02 14:22:49
+2,Mouse Logitech MX Master,Mouse profesional inalámbrico,99.99,15,Electrónica,2026-03-02 14:22:49
+3,Teclado Mecánico RGB,Teclado mecánico con retroiluminación RGB,149.99,8,Electrónica,2026-03-02 14:22:49
+4,"Monitor LG 27""",Monitor 4K de 27 pulgadas,399.99,3,Electrónica,2026-03-02 14:22:49
+5,Headphones Sony WH-1000,Audífonos con cancelación de ruido,279.99,10,Electrónica,2026-03-02 14:22:49
