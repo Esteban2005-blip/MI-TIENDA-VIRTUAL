@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Carrito de Compras - Tienda Virtual{% endblock %}
+
+{% block content %}
+<style>
+    .carrito-container { max-width: 800px; margin: 40px auto; }
+    .carrito-table { width: 100%; border-collapse: collapse; }
+    .carrito-table th, .carrito-table td { padding: 12px; border-bottom: 1px solid #ecf0f1; }
+    .carrito-table th { background-color: #3498db; color: white; }
+    .vaciar-btn { margin-top: 20px; background-color: #e74c3c; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
+    .vaciar-btn:hover { background-color:#c0392b; }
+</style>
+
+<div class="carrito-container">
+    <h1>🛒 Carrito de Compras</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="flash {{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% if productos %}
+    <table class="carrito-table">
+        <thead>
+            <tr><th>Producto</th><th>Categoría</th><th>Precio</th></tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.categoria }}</td>
+                <td>${{ "%.2f"|format(p.precio) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr><th colspan="2">Total</th><th>${{ "%.2f"|format(total) }}</th></tr>
+        </tfoot>
+    </table>
+    <form action="{{ url_for('vaciar_carrito') }}" method="get">
+        <button class="vaciar-btn">Vaciar Carrito</button>
+    </form>
+    {% else %}
+        <p>No hay productos en el carrito.</p>
+    {% endif %}
+</div>
+{% endblock %}

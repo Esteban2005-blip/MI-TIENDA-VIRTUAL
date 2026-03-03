@@ -43,5 +43,23 @@
         "cantidad": 10,
         "categoria": "Electrónica",
         "fecha_creacion": "2026-03-02 14:22:49"
+    },
+    {
+        "id": 6,
+        "nombre": "LAPTO ASUS TUF GAMING A16",
+        "descripcion": "ASUS TUF GAMING A16, RYZEN 7 445HS, RTX 4050, 1TB DE ALMACENAMIENTO SSD, 2 VENTILADORES ",
+        "precio": 1200.0,
+        "cantidad": 4,
+        "categoria": "Electrónica",
+        "fecha_creacion": "2026-03-03 01:08:04"
+    },
+    {
+        "id": 7,
+        "nombre": "TELEFONO SAMGUNG S24",
+        "descripcion": "TELEFONO MOVIL",
+        "precio": 1000.0,
+        "cantidad": 10,
+        "categoria": "Electrónica",
+        "fecha_creacion": "2026-03-03 01:20:17"
     }
 ]

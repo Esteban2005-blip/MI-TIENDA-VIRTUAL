@@ -7,88 +7,34 @@
     <h2>Catálogo de Productos</h2>
     
     <div class="filters">
-        <input type="text" class="search-box" placeholder="Buscar producto...">
-        <select class="filter-select">
-            <option>Todas las categorías</option>
-            <option>Electrónica</option>
-            <option>Computadoras</option>
-            <option>Móviles</option>
-            <option>Accesorios</option>
-        </select>
+        <form method="get" action="{{ url_for('productos') }}" class="flex-form">
+            <input type="text" name="q" class="search-box" placeholder="Buscar producto..." value="{{ q }}">
+            <select name="categoria" class="filter-select">
+                <option value="">Todas las categorías</option>
+                {% set categorias = ['Electrónica','Computadoras','Móviles','Accesorios','Componentes','Otros'] %}
+                {% for cat in categorias %}
+                    <option value="{{ cat }}" {% if categoria == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn">🔍</button>
+        </form>
     </div>
 
     <div class="products-grid">
-        <div class="product-card">
-            <div class="product-image">💻</div>
-            <h3>Laptop Gaming</h3>
-            <p class="category">Computadoras</p>
-            <p class="description">Procesador Intel i9, 32GB RAM, RTX 4090</p>
-            <p class="price">$1,299.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">📱</div>
-            <h3>Smartphone Premium</h3>
-            <p class="category">Móviles</p>
-            <p class="description">Pantalla AMOLED 6.7", Cámara 108MP, 5G</p>
-            <p class="price">$899.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">⌨️</div>
-            <h3>Teclado Mecánico RGB</h3>
-            <p class="category">Accesorios</p>
-            <p class="description">Switches Mecánicos, Iluminación RGB Personalizable</p>
-            <p class="price">$149.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">🖱️</div>
-            <h3>Ratón Inalámbrico</h3>
-            <p class="category">Accesorios</p>
-            <p class="description">Precisión 16,000 DPI, Batería 40 horas</p>
-            <p class="price">$79.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">🎧</div>
-            <h3>Auriculares Premium</h3>
-            <p class="category">Accesorios</p>
-            <p class="description">Cancelación de Ruido, Audio Hi-Fi, 50 horas</p>
-            <p class="price">$299.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">📺</div>
-            <h3>Monitor 4K</h3>
-            <p class="category">Electrónica</p>
-            <p class="description">Resolución 4K, 144Hz, HDR10, USB-C</p>
-            <p class="price">$799.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">💾</div>
-            <h3>SSD NVMe 2TB</h3>
-            <p class="category">Componentes</p>
-            <p class="description">Velocidad 7,000MB/s, PCIe 4.0</p>
-            <p class="price">$199.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
-
-        <div class="product-card">
-            <div class="product-image">🖥️</div>
-            <h3>Monitor Curvo Gaming</h3>
-            <p class="category">Electrónica</p>
-            <p class="description">144Hz, 1MS, QLED, 32 pulgadas</p>
-            <p class="price">$599.99</p>
-            <button class="btn btn-add-cart">Agregar al Carrito</button>
-        </div>
+        {% if productos %}
+            {% for producto in productos %}
+                <div class="product-card">
+                    <div class="product-image">📦</div>
+                    <h3>{{ producto.nombre }}</h3>
+                    <p class="category">{{ producto.categoria }}</p>
+                    <p class="description">{{ producto.descripcion or '-' }}</p>
+                    <p class="price">${{ "%.2f" | format(producto.precio) }}</p>
+                    <a href="{{ url_for('agregar_carrito', prod_id=producto.id) }}" class="btn btn-add-cart">Agregar al Carrito</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="padding:20px; color:#7f8c8d; text-align:center;">No se encontraron productos.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

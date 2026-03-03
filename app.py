@@ -3,7 +3,7 @@ Aplicación Flask - Tienda Virtual
 Semana 13: Persistencia de datos (TXT, JSON, CSV, SQLite)
 """
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 from inventario.bd import init_db, db
 from inventario.productos import Producto
 from inventario.inventario import GestorArchivos
@@ -16,6 +16,9 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///inventario.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# clave secreta para sesiones
+app.secret_key = os.environ.get('SECRET_KEY', 'devkey')
 
 # Inicializar base de datos
 init_db(app)
@@ -40,14 +43,56 @@ def about():
 
 @app.route('/productos')
 def productos():
-    """Página de Productos - Catálogo de productos"""
-    return render_template('productos.html')
+    """Página de Productos - Catálogo de productos con búsqueda"""
+    # parámetros de filtrado
+    q = request.args.get('q', '').strip()
+    categoria = request.args.get('categoria', '').strip()
+
+    # construir consulta base
+    consulta = Producto.query
+    if q:
+        consulta = consulta.filter(Producto.nombre.ilike(f"%{q}%"))
+    if categoria and categoria != '':
+        consulta = consulta.filter_by(categoria=categoria)
+
+    productos = consulta.all()
+    return render_template('productos.html', productos=productos, q=q, categoria=categoria)
 
 
 @app.route('/clientes')
 def clientes():
     """Página de Clientes - Gestión de clientes"""
     return render_template('clientes.html')
+
+
+# ===================== CARRITO =====================
+
+@app.route('/carrito')
+def ver_carrito():
+    """Mostrar los productos agregados al carrito"""
+    items = session.get('carrito', [])
+    productos = []
+    for prod_id in items:
+        p = Producto.query.get(prod_id)
+        if p:
+            productos.append(p)
+    total = sum(p.precio for p in productos)
+    return render_template('carrito.html', productos=productos, total=total)
+
+@app.route('/carrito/agregar/<int:prod_id>')
+def agregar_carrito(prod_id):
+    """Agregar un producto al carrito en sesión"""
+    carrito = session.get('carrito', [])
+    carrito.append(prod_id)
+    session['carrito'] = carrito
+    flash('Producto agregado al carrito', 'success')
+    return redirect(request.referrer or url_for('productos'))
+
+@app.route('/carrito/vaciar')
+def vaciar_carrito():
+    session.pop('carrito', None)
+    flash('Carrito vaciado', 'info')
+    return redirect(url_for('productos'))
 
 
 @app.route('/facturas')
@@ -223,10 +268,10 @@ def formulario_producto():
             gestor_archivos.guardar_en_csv(producto_dict)
             gestor_archivos.guardar_en_txt(f"Nuevo producto: {nombre} - ${precio}")
             
-            return redirect(url_for('producto_form'))
+            return redirect(url_for('formulario_producto'))
         except Exception as e:
             print(f"Error al crear producto: {e}")
-            return redirect(url_for('producto_form'))
+            return redirect(url_for('formulario_producto'))
     
     productos = Producto.query.all()
     return render_template('producto_form.html', productos=productos)
