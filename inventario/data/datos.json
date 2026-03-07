@@ -7,26 +7,32 @@
         "cantidad": 5,
         "categoria": "Electrónica",
         "fecha_creacion": "2026-03-02 14:22:49"
+            ,
+            "imagen": "images/laptop_dell_xps.jpg"
     },
     {
         "id": 2,
-        "nombre": "Mouse Logitech MX Master",
+            "imagen": "https://www.ubuy.ec/es/productuk/FRNIV040-dell-xps-15-7000-15-6-inch-fhd-ips-hs-led-infinity-anti-glare-laptop-silver-intel-core-i5-9300h-8-gb?srsltid=AfmBOoo1uDZwhBVZJRMbhj6w0B28DlZBzeOYNp0lsqhfMmMLky57NB1b"
         "descripcion": "Mouse profesional inalámbrico",
         "precio": 99.99,
         "cantidad": 15,
         "categoria": "Electrónica",
         "fecha_creacion": "2026-03-02 14:22:49"
+        "imagen": "images/mouse_logitech_mx_master.jpg"
     },
     {
         "id": 3,
+            "imagen": "images/mouse_logitech_mx_master.jpg"
         "nombre": "Teclado Mecánico RGB",
         "descripcion": "Teclado mecánico con retroiluminación RGB",
         "precio": 149.99,
         "cantidad": 8,
         "categoria": "Electrónica",
         "fecha_creacion": "2026-03-02 14:22:49"
+        "imagen": "images/teclado_rgb.jpg"
     },
     {
+            "imagen": "images/teclado_rgb.jpg"
         "id": 4,
         "nombre": "Monitor LG 27\"",
         "descripcion": "Monitor 4K de 27 pulgadas",
@@ -34,7 +40,9 @@
         "cantidad": 3,
         "categoria": "Electrónica",
         "fecha_creacion": "2026-03-02 14:22:49"
+        "imagen": "images/monitor_lg_27.jpg"
     },
+            "imagen": "images/monitor_lg_27.jpg"
     {
         "id": 5,
         "nombre": "Headphones Sony WH-1000",
@@ -43,6 +51,8 @@
         "cantidad": 10,
         "categoria": "Electrónica",
         "fecha_creacion": "2026-03-02 14:22:49"
+        "imagen": "images/headphones_sony_wh1000.jpg"
+            "imagen": "images/headphones_sony_wh1000.jpg"
     },
     {
         "id": 6,
@@ -52,6 +62,8 @@
         "cantidad": 4,
         "categoria": "Electrónica",
         "fecha_creacion": "2026-03-03 01:08:04"
+            "imagen": "images/laptop_asus_tuf.jpg"
+        "imagen": "images/laptop_asus_tuf.jpg"
     },
     {
         "id": 7,
@@ -60,6 +72,8 @@
         "precio": 1000.0,
         "cantidad": 10,
         "categoria": "Electrónica",
+            "imagen": "images/telefono_samsung_s24.jpg"
         "fecha_creacion": "2026-03-03 01:20:17"
+        "imagen": "images/telefono_samsung_s24.jpg"
     }
 ]

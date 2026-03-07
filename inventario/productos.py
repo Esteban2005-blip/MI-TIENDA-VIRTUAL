@@ -16,6 +16,7 @@ class Producto(db.Model):
     precio = db.Column(db.Float, nullable=False)
     cantidad = db.Column(db.Integer, default=0)
     categoria = db.Column(db.String(50), nullable=False)
+    imagen = db.Column(db.String(200), nullable=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
@@ -30,5 +31,6 @@ class Producto(db.Model):
             'precio': self.precio,
             'cantidad': self.cantidad,
             'categoria': self.categoria,
+            'imagen': self.imagen,
             'fecha_creacion': self.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_creacion else None
         }

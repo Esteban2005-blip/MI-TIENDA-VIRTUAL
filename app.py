@@ -8,6 +8,7 @@ from inventario.bd import init_db, db
 from inventario.productos import Producto
 from inventario.inventario import GestorArchivos
 import os
+from werkzeug.utils import secure_filename
 
 # Crear instancia de la aplicación Flask
 app = Flask(__name__)
@@ -251,12 +252,23 @@ def formulario_producto():
             cantidad = request.form.get('cantidad')
             categoria = request.form.get('categoria')
             
+            # Manejar imagen
+            imagen_path = None
+            if 'imagen' in request.files:
+                file = request.files['imagen']
+                if file.filename != '':
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(app.root_path, 'static', 'images', filename)
+                    file.save(file_path)
+                    imagen_path = f'images/{filename}'
+            
             nuevo_producto = Producto(
                 nombre=nombre,
                 descripcion=descripcion,
                 precio=float(precio),
                 cantidad=int(cantidad),
-                categoria=categoria
+                categoria=categoria,
+                imagen=imagen_path
             )
             
             db.session.add(nuevo_producto)

@@ -24,7 +24,9 @@
         {% if productos %}
             {% for producto in productos %}
                 <div class="product-card">
-                    <div class="product-image">📦</div>
+                    <div class="product-image" {% if producto.imagen %}style="background-image: url('{{ url_for('static', filename=producto.imagen) }}');"{% endif %}>
+                        {% if not producto.imagen %}📦{% endif %}
+                    </div>
                     <h3>{{ producto.nombre }}</h3>
                     <p class="category">{{ producto.categoria }}</p>
                     <p class="description">{{ producto.descripcion or '-' }}</p>

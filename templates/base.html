@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tienda Virtual{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <!-- Encabezado -->
     <header class="header">
         <div class="header-content">
-            <h1 class="logo">🛍️ Tienda Virtual</h1>
+            <h1 class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" style="height:40px; vertical-align:middle;">
+                TECNOMARKET
+            </h1>
             <p class="tagline">Tu tienda online confiable</p>
         </div>
     </header>
