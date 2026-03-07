@@ -331,8 +331,10 @@
                             <td>{{ producto.categoria }}</td>
                             <td>
                                 {% if producto.imagen %}
-                                    <div style="width:50px; height:50px; background-image: url('{{ url_for('static', filename=producto.imagen) }}'); background-size: cover; background-position: center; background-repeat: no-repeat; border-radius: 5px;"></div>
-                                {% else %}-{% endif %}
+                                    <img src="{{ url_for('static', filename=producto.imagen) }}" alt="Imagen" style="width:60px;height:60px;object-fit:cover;border-radius:5px;">
+                                {% else %}
+                                    <span style="font-size:2em;">📦</span>
+                                {% endif %}
                             </td>
                             <td>{{ producto.fecha_creacion.strftime('%d/%m/%Y %H:%M') if producto.fecha_creacion else '-' }}</td>
                         </tr>
