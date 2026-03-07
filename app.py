@@ -3,7 +3,7 @@ Aplicación Flask - Tienda Virtual
 Semana 13: Persistencia de datos (TXT, JSON, CSV, SQLite)
 """
 
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, send_from_directory
 from inventario.bd import init_db, db
 from inventario.productos import Producto
 from inventario.inventario import GestorArchivos
@@ -405,6 +405,16 @@ def internal_server_error(error):
         </body>
     </html>
     """, 500
+
+
+# ===================== RUTAS DE ARCHIVOS ESTÁTICOS =====================
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    # Forzar el tipo MIME correcto para CSS
+    if filename.endswith('.css'):
+        return send_from_directory('static', filename, mimetype='text/css')
+    return send_from_directory('static', filename)
 
 
 # ===================== PUNTO DE ENTRADA =====================
