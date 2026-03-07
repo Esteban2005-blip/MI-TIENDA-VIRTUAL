@@ -409,13 +409,7 @@ def internal_server_error(error):
 
 # ===================== RUTAS DE ARCHIVOS ESTÁTICOS =====================
 
-@app.route('/static/<path:filename>')
-def static_files(filename):
-    # Forzar el tipo MIME correcto para CSS
-    if filename.endswith('.css'):
-        return send_from_directory('static', filename, mimetype='text/css')
-    return send_from_directory('static', filename)
-
+# Eliminar la ruta personalizada para archivos estáticos
 
 # ===================== PUNTO DE ENTRADA =====================
 
