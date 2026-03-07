@@ -28,6 +28,156 @@ init_db(app)
 gestor_archivos = GestorArchivos()
  
 # ===================== AUTENTICACIÓN ADMIN =====================
+    
+    # ===================== CARGA AUTOMÁTICA DE PRODUCTOS DEMO =====================
+    def cargar_productos_demo():
+        if Producto.query.count() == 0:
+            productos_demo = [
+                {
+                    'nombre': 'Laptop Dell XPS',
+                    'descripcion': 'Laptop premium de alto rendimiento.',
+                    'precio': 1999.99,
+                    'cantidad': 5,
+                    'categoria': 'Computadoras',
+                    'imagen': 'images/laptop_dell_xps.jpg'
+                },
+                {
+                    'nombre': 'Laptop Asus TUF',
+                    'descripcion': 'Laptop gamer resistente.',
+                    'precio': 1499.99,
+                    'cantidad': 3,
+                    'categoria': 'Computadoras',
+                    'imagen': 'images/laptop_asus_tuf.jpg'
+                },
+                {
+                    'nombre': 'Monitor LG 27"',
+                    'descripcion': 'Monitor IPS de 27 pulgadas.',
+                    'precio': 399.99,
+                    'cantidad': 7,
+                    'categoria': 'Electrónica',
+                    'imagen': 'images/monitor_lg_27.jpg'
+                },
+                {
+                    'nombre': 'Mouse Logitech MX Master',
+                    'descripcion': 'Mouse inalámbrico ergonómico.',
+                    'precio': 99.99,
+                    'cantidad': 10,
+                    'categoria': 'Accesorios',
+                    'imagen': 'images/mouse_logitech_mx_master.jpg'
+                },
+                {
+                    'nombre': 'Teclado RGB',
+                    'descripcion': 'Teclado mecánico con retroiluminación.',
+                    'precio': 89.99,
+                    'cantidad': 8,
+                    'categoria': 'Accesorios',
+                    'imagen': 'images/teclado_rgb.jpg'
+                },
+                {
+                    'nombre': 'Teléfono Samsung S24',
+                    'descripcion': 'Smartphone de última generación.',
+                    'precio': 1299.99,
+                    'cantidad': 4,
+                    'categoria': 'Móviles',
+                    'imagen': 'images/telefono_samsung_s24.jpg'
+                },
+                {
+                    'nombre': 'Audífonos Sony WH1000',
+                    'descripcion': 'Audífonos inalámbricos con cancelación de ruido.',
+                    'precio': 349.99,
+                    'cantidad': 6,
+                    'categoria': 'Electrónica',
+                    'imagen': 'images/headphones_sony_wh1000.jpg'
+                }
+            ]
+            for prod in productos_demo:
+                nuevo = Producto(
+                    nombre=prod['nombre'],
+                    descripcion=prod['descripcion'],
+                    precio=prod['precio'],
+                    cantidad=prod['cantidad'],
+                    categoria=prod['categoria'],
+                    imagen=prod['imagen']
+                )
+                db.session.add(nuevo)
+            db.session.commit()
+    
+    cargar_productos_demo()
+@app.route('/agregar_productos_demo')
+def agregar_productos_demo():
+    productos_demo = [
+        {
+            'nombre': 'Laptop Dell XPS',
+            'descripcion': 'Laptop premium de alto rendimiento.',
+            'precio': 1999.99,
+            'cantidad': 5,
+            'categoria': 'Computadoras',
+            'imagen': 'images/laptop_dell_xps.jpg'
+        },
+        {
+            'nombre': 'Laptop Asus TUF',
+            'descripcion': 'Laptop gamer resistente.',
+            'precio': 1499.99,
+            'cantidad': 3,
+            'categoria': 'Computadoras',
+            'imagen': 'images/laptop_asus_tuf.jpg'
+        },
+        {
+            'nombre': 'Monitor LG 27"',
+            'descripcion': 'Monitor IPS de 27 pulgadas.',
+            'precio': 399.99,
+            'cantidad': 7,
+            'categoria': 'Electrónica',
+            'imagen': 'images/monitor_lg_27.jpg'
+        },
+        {
+            'nombre': 'Mouse Logitech MX Master',
+            'descripcion': 'Mouse inalámbrico ergonómico.',
+            'precio': 99.99,
+            'cantidad': 10,
+            'categoria': 'Accesorios',
+            'imagen': 'images/mouse_logitech_mx_master.jpg'
+        },
+        {
+            'nombre': 'Teclado RGB',
+            'descripcion': 'Teclado mecánico con retroiluminación.',
+            'precio': 89.99,
+            'cantidad': 8,
+            'categoria': 'Accesorios',
+            'imagen': 'images/teclado_rgb.jpg'
+        },
+        {
+            'nombre': 'Teléfono Samsung S24',
+            'descripcion': 'Smartphone de última generación.',
+            'precio': 1299.99,
+            'cantidad': 4,
+            'categoria': 'Móviles',
+            'imagen': 'images/telefono_samsung_s24.jpg'
+        },
+        {
+            'nombre': 'Audífonos Sony WH1000',
+            'descripcion': 'Audífonos inalámbricos con cancelación de ruido.',
+            'precio': 349.99,
+            'cantidad': 6,
+            'categoria': 'Electrónica',
+            'imagen': 'images/headphones_sony_wh1000.jpg'
+        }
+    ]
+    for prod in productos_demo:
+        existe = Producto.query.filter_by(nombre=prod['nombre']).first()
+        if not existe:
+            nuevo = Producto(
+                nombre=prod['nombre'],
+                descripcion=prod['descripcion'],
+                precio=prod['precio'],
+                cantidad=prod['cantidad'],
+                categoria=prod['categoria'],
+                imagen=prod['imagen']
+            )
+            db.session.add(nuevo)
+    db.session.commit()
+    flash('Productos demo agregados.', 'success')
+    return redirect(url_for('productos'))
 ADMIN_USER = 'admin'
 ADMIN_PASS = 'CIELO2025'
 
