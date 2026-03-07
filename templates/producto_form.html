@@ -190,10 +190,10 @@
     <a href="{{ url_for('datos') }}" class="datos-link">📊 Ver Datos Guardados</a>
 
     <div class="form-grid">
-        <!-- Formulario -->
+        <!-- Formulario solo visible para administrador -->
+        {% if session.admin_logged_in %}
         <div class="form-section">
             <h2>Crear Nuevo Producto</h2>
-            
             <div class="info-box">
                 <p><strong>ℹ️ Nota:</strong> Los datos se guardan automáticamente en:</p>
                 <ul style="margin: 10px 0; padding-left: 20px;">
@@ -203,7 +203,6 @@
                     <li>Archivo TXT (log)</li>
                 </ul>
             </div>
-
             <form method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="nombre">📝 Nombre del Producto *</label>
@@ -215,7 +214,6 @@
                         placeholder="Ej: Laptop Dell XPS"
                     >
                 </div>
-
                 <div class="form-group">
                     <label for="descripcion">📄 Descripción</label>
                     <textarea 
@@ -224,7 +222,6 @@
                         placeholder="Describe el producto..."
                     ></textarea>
                 </div>
-
                 <div class="form-group">
                     <label for="precio">💲 Precio *</label>
                     <input 
@@ -237,7 +234,6 @@
                         placeholder="Ej: 999.99"
                     >
                 </div>
-
                 <div class="form-group">
                     <label for="cantidad">📦 Cantidad en Stock</label>
                     <input 
@@ -249,7 +245,6 @@
                         placeholder="Ej: 10"
                     >
                 </div>
-
                 <div class="form-group">
                     <label for="categoria">🏷️ Categoría *</label>
                     <select id="categoria" name="categoria" required>
@@ -263,7 +258,6 @@
                         <option value="Otros">Otros</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="imagen">🖼️ Imagen del Producto</label>
                     <input 
@@ -273,10 +267,10 @@
                         accept="image/*"
                     >
                 </div>
-
                 <button type="submit" class="submit-btn">✅ Crear Producto</button>
             </form>
         </div>
+        {% endif %}
 
         <!-- Información de persistencia -->
         <div class="form-section">
