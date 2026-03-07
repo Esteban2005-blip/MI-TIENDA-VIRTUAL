@@ -191,7 +191,7 @@
 
     <div class="form-grid">
         <!-- Formulario solo visible para administrador -->
-        {% if session.admin_logged_in %}
+        {% if session['admin_logged_in'] %}
         <div class="form-section">
             <h2>Crear Nuevo Producto</h2>
             <div class="info-box">
