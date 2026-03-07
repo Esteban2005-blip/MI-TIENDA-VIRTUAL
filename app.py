@@ -26,6 +26,39 @@ init_db(app)
 
 # Crear instancia del gestor de archivos
 gestor_archivos = GestorArchivos()
+ 
+# ===================== AUTENTICACIÓN ADMIN =====================
+ADMIN_USER = 'admin'
+ADMIN_PASS = 'CIELO2025'
+
+def login_required(f):
+    from functools import wraps
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            flash('Debes iniciar sesión como administrador.', 'warning')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == ADMIN_USER and password == ADMIN_PASS:
+            session['admin_logged_in'] = True
+            flash('Sesión iniciada correctamente.', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Usuario o contraseña incorrectos.', 'danger')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('admin_logged_in', None)
+    flash('Sesión cerrada.', 'info')
+    return redirect(url_for('index'))
 
 
 # ===================== RUTAS PRINCIPALES =====================
@@ -97,6 +130,7 @@ def vaciar_carrito():
 
 
 @app.route('/facturas')
+@login_required
 def facturas():
     """Página de Facturas - Gestión de facturas"""
     return render_template('facturas.html')
@@ -148,15 +182,14 @@ def obtener_producto(id):
 
 
 @app.route('/api/productos/crear', methods=['POST'])
+@login_required
 def crear_producto():
     """Crear un nuevo producto"""
     try:
         datos = request.get_json() if request.is_json else request.form.to_dict()
-        
         # Validar datos necesarios
         if not datos.get('nombre') or not datos.get('precio') or not datos.get('categoria'):
             return jsonify({'error': 'Faltan campos requeridos'}), 400
-        
         # Crear producto en SQLite
         nuevo_producto = Producto(
             nombre=datos.get('nombre'),
@@ -165,16 +198,13 @@ def crear_producto():
             cantidad=int(datos.get('cantidad', 0)),
             categoria=datos.get('categoria', '')
         )
-        
         db.session.add(nuevo_producto)
         db.session.commit()
-        
         # Guardar también en archivos
         producto_dict = nuevo_producto.to_dict()
         gestor_archivos.guardar_en_json(producto_dict)
         gestor_archivos.guardar_en_csv(producto_dict)
         gestor_archivos.guardar_en_txt(f"Producto creado: {nuevo_producto.nombre}")
-        
         return jsonify({
             'mensaje': 'Producto creado exitosamente',
             'producto': producto_dict
