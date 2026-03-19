@@ -1,36 +1,77 @@
 """
-Modelo de Productos para la base de datos SQLite
+Modelo de Productos para la base de datos MySQL (conexión directa)
 """
 
-from inventario.bd import db
+from db import get_connection
 from datetime import datetime
 
-class Producto(db.Model):
-    """Modelo de datos para productos"""
-    __tablename__ = 'productos'
-    
-    # Atributos
-    id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(100), nullable=False, unique=True)
-    descripcion = db.Column(db.String(500), nullable=True)
-    precio = db.Column(db.Float, nullable=False)
-    cantidad = db.Column(db.Integer, default=0)
-    categoria = db.Column(db.String(50), nullable=False)
-    imagen = db.Column(db.String(200), nullable=True)
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    def __repr__(self):
-        return f"<Producto {self.nombre} - ${self.precio}>"
-    
-    def to_dict(self):
-        """Convertir producto a diccionario"""
-        return {
-            'id': self.id,
-            'nombre': self.nombre,
-            'descripcion': self.descripcion,
-            'precio': self.precio,
-            'cantidad': self.cantidad,
-            'categoria': self.categoria,
-            'imagen': self.imagen,
-            'fecha_creacion': self.fecha_creacion.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_creacion else None
-        }
+# Funciones CRUD para productos usando MySQL directo
+def obtener_productos():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos")
+    productos = cursor.fetchall()
+    from datetime import datetime
+    for p in productos:
+        p.setdefault('id', None)
+        p.setdefault('nombre', '')
+        p.setdefault('descripcion', '')
+        p.setdefault('precio', 0.0)
+        p.setdefault('cantidad', 0)
+        p.setdefault('categoria', '')
+        p.setdefault('imagen', None)
+        fecha = p.get('fecha_creacion')
+        if fecha and not isinstance(fecha, datetime):
+            try:
+                # Maneja string con o sin microsegundos
+                if '.' in str(fecha):
+                    p['fecha_creacion'] = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S.%f')
+                else:
+                    p['fecha_creacion'] = datetime.strptime(str(fecha), '%Y-%m-%d %H:%M:%S')
+            except Exception:
+                p['fecha_creacion'] = None
+        elif not fecha:
+            p['fecha_creacion'] = None
+    cursor.close()
+    conn.close()
+    return productos
+
+def obtener_producto_por_id(producto_id):
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos WHERE id = %s", (producto_id,))
+    producto = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return producto
+
+def crear_producto(nombre, descripcion, precio, cantidad, categoria, imagen=None):
+    conn = get_connection()
+    cursor = conn.cursor()
+    fecha_creacion = datetime.utcnow()
+    cursor.execute(
+        "INSERT INTO productos (nombre, descripcion, precio, cantidad, categoria, imagen, fecha_creacion) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+        (nombre, descripcion, precio, cantidad, categoria, imagen, fecha_creacion)
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def actualizar_producto(producto_id, nombre, descripcion, precio, cantidad, categoria, imagen=None):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE productos SET nombre=%s, descripcion=%s, precio=%s, cantidad=%s, categoria=%s, imagen=%s WHERE id=%s",
+        (nombre, descripcion, precio, cantidad, categoria, imagen, producto_id)
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def eliminar_producto(producto_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM productos WHERE id = %s", (producto_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()

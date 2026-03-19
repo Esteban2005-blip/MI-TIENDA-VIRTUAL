@@ -1,18 +1,8 @@
 """
-Configuración de la base de datos SQLite con SQLAlchemy
+Configuración de la base de datos MySQL (conexión directa)
 """
 
-from flask_sqlalchemy import SQLAlchemy
-import os
 
-# Crear instancia de SQLAlchemy
-db = SQLAlchemy()
+# Este archivo ya no usa SQLAlchemy. Todas las operaciones de base de datos deben hacerse usando la función get_connection() de db.py
 
-def init_db(app):
-    """Inicializar la base de datos con la aplicación Flask"""
-    db.init_app(app)
-    
-    # Crear las tablas si no existen
-    with app.app_context():
-        db.create_all()
-        print("[OK] Base de datos inicializada correctamente")
+# Si necesitas inicializar datos o crear tablas, usa scripts separados o la CLI de MySQL.
