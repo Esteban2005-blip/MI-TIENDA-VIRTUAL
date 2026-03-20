@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Usuarios</h2>
+    <form method="POST" action="{{ url_for('agregar_usuario') }}" class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
+            </div>
+            <div class="col-md-3">
+                <input type="email" name="mail" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="col-md-3">
+                <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Agregar Usuario</button>
+            </div>
+        </div>
+    </form>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.id_usuario }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('editar_usuario', id_usuario=usuario.id_usuario) }}" class="d-flex">
+                        <input type="text" name="nombre" value="{{ usuario.nombre }}" class="form-control me-2" required>
+                </td>
+                <td>
+                        <input type="email" name="mail" value="{{ usuario.mail }}" class="form-control me-2" required>
+                </td>
+                <td>
+                        <button type="submit" class="btn btn-sm btn-success me-2">Actualizar</button>
+                    </form>
+                    <a href="{{ url_for('eliminar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar usuario?')">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

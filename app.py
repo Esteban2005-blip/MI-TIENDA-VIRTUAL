@@ -2,6 +2,7 @@
 
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, send_from_directory
+from conexion.conexion import get_mysql_connection
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import User
 from db import get_connection
@@ -13,27 +14,19 @@ import os
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# Crear instancia de la aplicación Flask
 app = Flask(__name__)
-
-# Configuración de la aplicación
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False  # Cambia a False para producción
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-
-# clave secreta para sesiones
 app.secret_key = os.environ.get('SECRET_KEY', 'devkey')
 
-# Inicializar Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Función para cargar usuario
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_by_id(user_id)
 
-# Crear instancia del gestor de archivos
 gestor_archivos = GestorArchivos()
 
 
@@ -342,6 +335,55 @@ def datos():
 
 
 # ===================== RUTAS CRUD DE PRODUCTOS (SQLite) =====================
+
+# ===================== CRUD USUARIOS MYSQL =====================
+@app.route('/usuarios')
+def mostrar_usuarios():
+    conn = get_mysql_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM usuarios")
+    usuarios = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('usuarios.html', usuarios=usuarios)
+
+@app.route('/usuarios/agregar', methods=['POST'])
+def agregar_usuario():
+    nombre = request.form['nombre']
+    mail = request.form['mail']
+    password = generate_password_hash(request.form['password'])
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO usuarios (nombre, mail, password) VALUES (%s, %s, %s)", (nombre, mail, password))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash('Usuario agregado correctamente')
+    return redirect(url_for('mostrar_usuarios'))
+
+@app.route('/usuarios/eliminar/<int:id_usuario>')
+def eliminar_usuario(id_usuario):
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM usuarios WHERE id_usuario = %s", (id_usuario,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash('Usuario eliminado')
+    return redirect(url_for('mostrar_usuarios'))
+
+@app.route('/usuarios/editar/<int:id_usuario>', methods=['POST'])
+def editar_usuario(id_usuario):
+    nombre = request.form['nombre']
+    mail = request.form['mail']
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE usuarios SET nombre=%s, mail=%s WHERE id_usuario=%s", (nombre, mail, id_usuario))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash('Usuario actualizado')
+    return redirect(url_for('mostrar_usuarios'))
 
 @app.route('/api/productos', methods=['GET'])
 def obtener_productos():
