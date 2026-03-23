@@ -1,0 +1,12 @@
+{# templates/productos/confirmar_eliminar.html #}
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Eliminar Producto</h2>
+    <p>¿Estás seguro que deseas eliminar el producto <strong>{{ producto.nombre }}</strong>?</p>
+    <form method="post">
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a href="{{ url_for('listar_productos') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
