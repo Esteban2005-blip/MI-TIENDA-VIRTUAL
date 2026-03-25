@@ -360,20 +360,43 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        email = request.form['email']
-        password = generate_password_hash(request.form['password'])
-        conn = get_mysql_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO usuarios (nombre, email, password) VALUES (%s, %s, %s)",
-            (nombre, email, password)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
-        flash('Usuario registrado. Inicia sesión.', 'success')
-        return redirect(url_for('login'))
+        nombre = request.form.get('nombre', '').strip()
+        email = request.form.get('email', '').strip()
+        raw_password = request.form.get('password', '')
+
+        if not nombre or not email or not raw_password:
+            flash('Todos los campos son obligatorios.', 'warning')
+            return render_template('register.html')
+
+        conn = None
+        cursor = None
+        try:
+            conn = get_mysql_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            # Evita error por correo duplicado y permite mostrar un mensaje amigable.
+            cursor.execute("SELECT id_usuario FROM usuarios WHERE email = %s", (email,))
+            if cursor.fetchone():
+                flash('Ese correo ya está registrado. Usa otro o inicia sesión.', 'warning')
+                return render_template('register.html')
+
+            password = generate_password_hash(raw_password)
+            cursor.execute(
+                "INSERT INTO usuarios (nombre, email, password) VALUES (%s, %s, %s)",
+                (nombre, email, password)
+            )
+            conn.commit()
+            flash('Usuario registrado. Inicia sesión.', 'success')
+            return redirect(url_for('login'))
+        except mysql.connector.Error as e:
+            print(f"Error en registro de usuario: {e}")
+            flash('No se pudo completar el registro. Verifica la conexión a MySQL.', 'danger')
+            return render_template('register.html')
+        finally:
+            if cursor is not None:
+                cursor.close()
+            if conn is not None:
+                conn.close()
     return render_template('register.html')
 
 
