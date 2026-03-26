@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 from models import User
+from db import get_connection
 from inventario.productos import (
     obtener_productos as obtener_productos_db,
     obtener_producto_por_id,
@@ -21,13 +22,7 @@ from forms.producto_form import ProductoForm
 
 # Función de conexión MySQL
 def get_mysql_connection():
-    return mysql.connector.connect(
-        host=os.environ.get('MYSQL_HOST', 'localhost'),
-        user=os.environ.get('MYSQL_USER', 'root'),
-        password=os.environ.get('MYSQL_PASSWORD', ''),
-        database=os.environ.get('MYSQL_DATABASE', 'tienda_virtual'),
-        port=int(os.environ.get('MYSQL_PORT', 3306))
-    )
+    return get_connection()
 
 # ========== CONFIGURACIÓN FLASK Y EXTENSIONES ========== 
 app = Flask(__name__)
@@ -390,7 +385,14 @@ def register():
             return redirect(url_for('login'))
         except mysql.connector.Error as e:
             print(f"Error en registro de usuario: {e}")
-            flash('No se pudo completar el registro. Verifica la conexión a MySQL.', 'danger')
+            if e.errno in (2002, 2003, 2005, 2013):
+                flash('No hay conexión con MySQL. En Render, revisa MYSQL_HOST, MYSQL_PORT y que la base permita conexiones externas.', 'danger')
+            elif e.errno == 1045:
+                flash('MySQL rechazó el usuario/contraseña. Revisa MYSQL_USER y MYSQL_PASSWORD en Render.', 'danger')
+            elif e.errno == 1049:
+                flash('La base de datos no existe. Revisa MYSQL_DATABASE en Render.', 'danger')
+            else:
+                flash('No se pudo completar el registro por un error de base de datos.', 'danger')
             return render_template('register.html')
         finally:
             if cursor is not None:
