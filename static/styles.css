@@ -606,19 +606,47 @@ tbody tr:hover {
     opacity: 0.9;
 }
 
+/* ========================= HAMBURGER ========================= */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.1em;
+    padding: 12px 20px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
 /* ========================= RESPONSIVE ========================= */
 @media (max-width: 768px) {
     .logo {
         font-size: 2em;
     }
 
+    /* Mostrar botón hamburguesa */
+    .nav-toggle {
+        display: block;
+    }
+
+    /* Ocultar links por defecto en móvil */
     .nav-list {
+        display: none;
         flex-direction: column;
+        width: 100%;
+        border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* Mostrar links cuando el menú está abierto */
+    .nav-list.nav-open {
+        display: flex;
     }
 
     .nav-link {
-        padding: 12px 15px;
-        text-align: center;
+        padding: 12px 20px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
     .hero {

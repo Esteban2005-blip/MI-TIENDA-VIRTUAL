@@ -21,7 +21,8 @@
 
     <!-- Menú de Navegación -->
     <nav class="navbar">
-        <ul class="nav-list">
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">&#9776; Menú</button>
+        <ul class="nav-list" id="navList">
             <li><a href="{{ url_for('index') }}" class="nav-link">Inicio</a></li>
             <li><a href="{{ url_for('productos') }}" class="nav-link">Productos</a></li>
             <li><a href="{{ url_for('ver_carrito') }}" class="nav-link">Carrito</a></li>
@@ -33,6 +34,18 @@
             <li><a href="{{ url_for('contacto') }}" class="nav-link">Contacto</a></li>
         </ul>
     </nav>
+    <script>
+        document.getElementById('navToggle').addEventListener('click', function() {
+            var list = document.getElementById('navList');
+            list.classList.toggle('nav-open');
+        });
+        // Cierra el menú al pulsar un enlace
+        document.querySelectorAll('.nav-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.getElementById('navList').classList.remove('nav-open');
+            });
+        });
+    </script>
 
     <!-- Contenido Principal -->
     <main class="main-content">
