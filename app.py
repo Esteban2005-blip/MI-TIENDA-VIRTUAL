@@ -216,34 +216,64 @@ def finalizar_compra():
         flash('Tu carrito esta vacio.', 'warning')
         return redirect(url_for('ver_carrito'))
 
+    nombre = request.form.get('nombre', '').strip() or current_user.nombre
+    email = request.form.get('email', '').strip() or current_user.email
+    telefono = request.form.get('telefono', '').strip()
+    ciudad = request.form.get('ciudad', '').strip()
+    direccion = request.form.get('direccion', '').strip()
+    metodo_pago = request.form.get('metodo_pago', '').strip()
+    nota = request.form.get('nota', '').strip()
+
+    if not all([nombre, email, telefono, ciudad, direccion, metodo_pago]):
+        flash('Completa todos los datos obligatorios para finalizar la compra.', 'warning')
+        return redirect(url_for('ver_carrito'))
+
     conn = None
     cursor = None
     try:
         conn = get_mysql_connection()
         cursor = conn.cursor(dictionary=True)
 
+        # Mantiene compatibilidad con bases que todavia no tienen la columna direccion.
+        cursor.execute("SHOW COLUMNS FROM clientes LIKE 'direccion'")
+        tiene_direccion = cursor.fetchone() is not None
+
         # Registra o actualiza al cliente asociado al usuario autenticado.
         cursor.execute(
             "SELECT id_cliente, total_compras FROM clientes WHERE email = %s",
-            (current_user.email,)
+            (email,)
         )
         cliente = cursor.fetchone()
 
         if cliente:
             total_actual = int(cliente.get('total_compras') or 0)
-            cursor.execute(
-                "UPDATE clientes SET nombre = %s, total_compras = %s WHERE id_cliente = %s",
-                (current_user.nombre, total_actual + 1, cliente['id_cliente'])
-            )
+            if tiene_direccion:
+                cursor.execute(
+                    "UPDATE clientes SET nombre = %s, telefono = %s, ciudad = %s, direccion = %s, total_compras = %s WHERE id_cliente = %s",
+                    (nombre, telefono, ciudad, direccion, total_actual + 1, cliente['id_cliente'])
+                )
+            else:
+                cursor.execute(
+                    "UPDATE clientes SET nombre = %s, telefono = %s, ciudad = %s, total_compras = %s WHERE id_cliente = %s",
+                    (nombre, telefono, ciudad, total_actual + 1, cliente['id_cliente'])
+                )
         else:
-            cursor.execute(
-                "INSERT INTO clientes (nombre, email, total_compras) VALUES (%s, %s, %s)",
-                (current_user.nombre, current_user.email, 1)
-            )
+            if tiene_direccion:
+                cursor.execute(
+                    "INSERT INTO clientes (nombre, email, telefono, ciudad, direccion, total_compras) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (nombre, email, telefono, ciudad, direccion, 1)
+                )
+            else:
+                cursor.execute(
+                    "INSERT INTO clientes (nombre, email, telefono, ciudad, total_compras) VALUES (%s, %s, %s, %s, %s)",
+                    (nombre, email, telefono, ciudad, 1)
+                )
 
         conn.commit()
         session.pop('carrito', None)
-        flash('Compra finalizada con exito. Cliente registrado/actualizado.', 'success')
+        flash(f'Compra finalizada con exito. Metodo de pago: {metodo_pago}.', 'success')
+        if nota:
+            flash(f'Nota registrada: {nota}', 'info')
         return redirect(url_for('clientes'))
     except mysql.connector.Error as e:
         if conn is not None:

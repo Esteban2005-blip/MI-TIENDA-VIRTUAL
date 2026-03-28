@@ -12,6 +12,22 @@
     .vaciar-btn:hover { background-color:#c0392b; }
     .finalizar-btn { margin-top: 20px; margin-left: 10px; background-color: #27ae60; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
     .finalizar-btn:hover { background-color:#1f8b4d; }
+    .checkout-form { margin-top: 20px; padding: 16px; border: 1px solid #dfe6e9; border-radius: 8px; background: #f8fafc; }
+    .checkout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .checkout-full { grid-column: 1 / -1; }
+    .checkout-form label { font-weight: 600; color: #2c3e50; display: block; margin-bottom: 4px; }
+    .checkout-form input, .checkout-form select, .checkout-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #cfd8dc;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    .checkout-form textarea { min-height: 80px; resize: vertical; }
+    .checkout-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    @media (max-width: 640px) {
+        .checkout-grid { grid-template-columns: 1fr; }
+    }
 </style>
 
 <div class="carrito-container">
@@ -44,12 +60,49 @@
             <tr><th colspan="2">Total</th><th>${{ "%.2f"|format(total) }}</th></tr>
         </tfoot>
     </table>
-    <form action="{{ url_for('vaciar_carrito') }}" method="get">
-        <button class="vaciar-btn">Vaciar Carrito</button>
+    <form action="{{ url_for('finalizar_compra') }}" method="post" class="checkout-form">
+        <h3>Datos para el pago y envio</h3>
+        <div class="checkout-grid">
+            <div>
+                <label for="nombre">Nombre completo</label>
+                <input id="nombre" name="nombre" type="text" value="{{ current_user.nombre if current_user.is_authenticated else '' }}" required>
+            </div>
+            <div>
+                <label for="email">Correo electronico</label>
+                <input id="email" name="email" type="email" value="{{ current_user.email if current_user.is_authenticated else '' }}" required>
+            </div>
+            <div>
+                <label for="telefono">Telefono</label>
+                <input id="telefono" name="telefono" type="text" placeholder="Ej: 3001234567" required>
+            </div>
+            <div>
+                <label for="ciudad">Ciudad</label>
+                <input id="ciudad" name="ciudad" type="text" required>
+            </div>
+            <div class="checkout-full">
+                <label for="direccion">Direccion de envio</label>
+                <textarea id="direccion" name="direccion" placeholder="Calle, numero, barrio y referencias" required></textarea>
+            </div>
+            <div>
+                <label for="metodo_pago">Metodo de pago</label>
+                <select id="metodo_pago" name="metodo_pago" required>
+                    <option value="">Selecciona uno</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="contraentrega">Contraentrega</option>
+                </select>
+            </div>
+            <div>
+                <label for="nota">Nota adicional</label>
+                <input id="nota" name="nota" type="text" placeholder="Opcional">
+            </div>
+        </div>
+        <div class="checkout-actions">
+            <button class="vaciar-btn" type="submit" form="vaciar-carrito-form">Vaciar Carrito</button>
+            <button class="finalizar-btn" type="submit">Finalizar compra</button>
+        </div>
     </form>
-    <form action="{{ url_for('finalizar_compra') }}" method="post" style="display:inline-block;">
-        <button class="finalizar-btn" type="submit">Finalizar compra</button>
-    </form>
+    <form id="vaciar-carrito-form" action="{{ url_for('vaciar_carrito') }}" method="get"></form>
     {% else %}
         <p>No hay productos en el carrito.</p>
     {% endif %}

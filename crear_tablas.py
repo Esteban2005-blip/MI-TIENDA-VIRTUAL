@@ -32,6 +32,7 @@ SQL_TABLAS = [
         email           VARCHAR(150)  NOT NULL UNIQUE,
         telefono        VARCHAR(30),
         ciudad          VARCHAR(100),
+        direccion       VARCHAR(255),
         total_compras   INT           NOT NULL DEFAULT 0,
         fecha_registro  DATETIME      DEFAULT CURRENT_TIMESTAMP
     )
