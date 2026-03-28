@@ -92,6 +92,45 @@ def reporte_productos_pdf():
     return response
 
 
+@app.route('/clientes/reporte/pdf')
+@login_required
+def reporte_clientes_pdf():
+    conn = get_mysql_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id_cliente, nombre, email, telefono, ciudad, total_compras FROM clientes ORDER BY fecha_registro DESC")
+    clientes = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 10, 'Reporte de Clientes', ln=True, align='C')
+    pdf.ln(6)
+    pdf.set_font('Arial', 'B', 9)
+    pdf.cell(15, 8, 'ID', 1)
+    pdf.cell(35, 8, 'Nombre', 1)
+    pdf.cell(45, 8, 'Email', 1)
+    pdf.cell(28, 8, 'Telefono', 1)
+    pdf.cell(35, 8, 'Ciudad', 1)
+    pdf.cell(25, 8, 'Compras', 1)
+    pdf.ln()
+
+    pdf.set_font('Arial', '', 8)
+    for c in clientes:
+        pdf.cell(15, 8, str(c.get('id_cliente', '')), 1)
+        pdf.cell(35, 8, str(c.get('nombre', ''))[:20], 1)
+        pdf.cell(45, 8, str(c.get('email', ''))[:28], 1)
+        pdf.cell(28, 8, str(c.get('telefono') or '-')[:16], 1)
+        pdf.cell(35, 8, str(c.get('ciudad') or '-')[:20], 1)
+        pdf.cell(25, 8, str(c.get('total_compras') or 0), 1)
+        pdf.ln()
+
+    response = app.response_class(pdf.output(dest='S').encode('latin1'), mimetype='application/pdf')
+    response.headers['Content-Disposition'] = 'attachment; filename=reporte_clientes.pdf'
+    return response
+
+
 # ...existing code...
 
 

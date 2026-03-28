@@ -5,6 +5,9 @@
 {% block content %}
 <div class="container">
     <h2>Catálogo de Productos</h2>
+    <div class="section-buttons" style="margin-bottom: 12px;">
+        <a href="{{ url_for('reporte_productos_pdf') }}" class="btn btn-secondary">Descargar reporte PDF</a>
+    </div>
     
     <div class="filters">
         <form method="get" action="{{ url_for('productos') }}" class="flex-form">

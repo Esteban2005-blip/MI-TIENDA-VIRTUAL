@@ -9,6 +9,7 @@
     <!-- Formulario nuevo cliente -->
     <div class="section-buttons" style="margin-bottom:1rem;">
         <button class="btn btn-primary" onclick="document.getElementById('form-nuevo-cliente').style.display='block'">+ Nuevo Cliente</button>
+        <a class="btn btn-secondary" href="{{ url_for('reporte_clientes_pdf') }}">Descargar reporte PDF</a>
     </div>
     <div id="form-nuevo-cliente" style="display:none; background:#f8f9fa; padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
         <h4>Agregar Cliente</h4>
