@@ -136,8 +136,44 @@ def productos():
 @app.route('/clientes')
 @login_required
 def clientes():
-    # Página de Clientes - Gestión de clientes
-    return render_template('clientes.html')
+    conn = get_mysql_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM clientes ORDER BY fecha_registro DESC")
+    clientes_list = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('clientes.html', clientes=clientes_list)
+
+@app.route('/clientes/agregar', methods=['POST'])
+@login_required
+def agregar_cliente():
+    nombre   = request.form['nombre']
+    email    = request.form['email']
+    telefono = request.form.get('telefono', '')
+    ciudad   = request.form.get('ciudad', '')
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO clientes (nombre, email, telefono, ciudad) VALUES (%s, %s, %s, %s)",
+        (nombre, email, telefono, ciudad)
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash('Cliente agregado correctamente', 'success')
+    return redirect(url_for('clientes'))
+
+@app.route('/clientes/eliminar/<int:id_cliente>')
+@login_required
+def eliminar_cliente(id_cliente):
+    conn = get_mysql_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM clientes WHERE id_cliente = %s", (id_cliente,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash('Cliente eliminado', 'info')
+    return redirect(url_for('clientes'))
 
 
 # ===================== CARRITO =====================

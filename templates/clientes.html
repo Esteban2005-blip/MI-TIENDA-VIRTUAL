@@ -5,9 +5,21 @@
 {% block content %}
 <div class="container">
     <h2>Gestión de Clientes</h2>
-    
-    <div class="section-buttons">
-        <button class="btn btn-primary">+ Nuevo Cliente</button>
+
+    <!-- Formulario nuevo cliente -->
+    <div class="section-buttons" style="margin-bottom:1rem;">
+        <button class="btn btn-primary" onclick="document.getElementById('form-nuevo-cliente').style.display='block'">+ Nuevo Cliente</button>
+    </div>
+    <div id="form-nuevo-cliente" style="display:none; background:#f8f9fa; padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+        <h4>Agregar Cliente</h4>
+        <form method="POST" action="{{ url_for('agregar_cliente') }}">
+            <input type="text"   name="nombre"   placeholder="Nombre"   required style="margin:4px; padding:6px;">
+            <input type="email"  name="email"    placeholder="Email"    required style="margin:4px; padding:6px;">
+            <input type="text"   name="telefono" placeholder="Teléfono"          style="margin:4px; padding:6px;">
+            <input type="text"   name="ciudad"   placeholder="Ciudad"            style="margin:4px; padding:6px;">
+            <button type="submit" class="btn btn-primary" style="margin:4px;">Guardar</button>
+            <button type="button" class="btn" onclick="document.getElementById('form-nuevo-cliente').style.display='none'" style="margin:4px;">Cancelar</button>
+        </form>
     </div>
 
     <div class="customers-table">
@@ -24,51 +36,23 @@
                 </tr>
             </thead>
             <tbody>
+                {% for c in clientes %}
                 <tr>
-                    <td>001</td>
-                    <td>Juan Pérez</td>
-                    <td>juan.perez@email.com</td>
-                    <td>+1-555-1001</td>
-                    <td>Madrid</td>
-                    <td>12</td>
-                    <td><button class="btn-small">Ver</button></td>
+                    <td>{{ c.id_cliente }}</td>
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.telefono or '-' }}</td>
+                    <td>{{ c.ciudad or '-' }}</td>
+                    <td>{{ c.total_compras }}</td>
+                    <td>
+                        <a href="{{ url_for('eliminar_cliente', id_cliente=c.id_cliente) }}"
+                           class="btn-small"
+                           onclick="return confirm('¿Eliminar cliente?')">Eliminar</a>
+                    </td>
                 </tr>
-                <tr>
-                    <td>002</td>
-                    <td>María García</td>
-                    <td>maria.garcia@email.com</td>
-                    <td>+1-555-1002</td>
-                    <td>Barcelona</td>
-                    <td>8</td>
-                    <td><button class="btn-small">Ver</button></td>
-                </tr>
-                <tr>
-                    <td>003</td>
-                    <td>Carlos López</td>
-                    <td>carlos.lopez@email.com</td>
-                    <td>+1-555-1003</td>
-                    <td>Valencia</td>
-                    <td>15</td>
-                    <td><button class="btn-small">Ver</button></td>
-                </tr>
-                <tr>
-                    <td>004</td>
-                    <td>Ana Martínez</td>
-                    <td>ana.martinez@email.com</td>
-                    <td>+1-555-1004</td>
-                    <td>Sevilla</td>
-                    <td>5</td>
-                    <td><button class="btn-small">Ver</button></td>
-                </tr>
-                <tr>
-                    <td>005</td>
-                    <td>Roberto Rodríguez</td>
-                    <td>roberto.rodri@email.com</td>
-                    <td>+1-555-1005</td>
-                    <td>Bilbao</td>
-                    <td>20</td>
-                    <td><button class="btn-small">Ver</button></td>
-                </tr>
+                {% else %}
+                <tr><td colspan="7" style="text-align:center;">No hay clientes registrados.</td></tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -77,20 +61,8 @@
         <h3>Estadísticas de Clientes</h3>
         <div class="stats-grid">
             <div class="stat-box">
-                <h4>10,547</h4>
+                <h4>{{ clientes | length }}</h4>
                 <p>Total de Clientes</p>
-            </div>
-            <div class="stat-box">
-                <h4>2,341</h4>
-                <p>Nuevos Este Mes</p>
-            </div>
-            <div class="stat-box">
-                <h4>$2.5M</h4>
-                <p>Ingresos Generados</p>
-            </div>
-            <div class="stat-box">
-                <h4>87%</h4>
-                <p>Tasa de Retención</p>
             </div>
         </div>
     </div>
