@@ -23,11 +23,11 @@ def _build_mysql_config():
             }
 
     return {
-        'host': os.environ.get('MYSQL_HOST', 'localhost'),
+        'host': os.environ.get('MYSQL_HOST', 'yamabiko.proxy.rlwy.net'),
         'user': os.environ.get('MYSQL_USER', 'root'),
-        'password': os.environ.get('MYSQL_PASSWORD', ''),
-        'database': os.environ.get('MYSQL_DATABASE', 'tienda_virtual'),
-        'port': int(os.environ.get('MYSQL_PORT', 3306)),
+        'password': os.environ.get('MYSQL_PASSWORD', 'oUGAoHObQHXalQaJxoqFTdFjGxPTCdZO'),
+        'database': os.environ.get('MYSQL_DATABASE', 'railway'),
+        'port': int(os.environ.get('MYSQL_PORT', 23455)),
         'connection_timeout': int(os.environ.get('MYSQL_CONNECT_TIMEOUT', 10)),
     }
 
