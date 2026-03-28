@@ -10,6 +10,8 @@
     .carrito-table th { background-color: #3498db; color: white; }
     .vaciar-btn { margin-top: 20px; background-color: #e74c3c; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
     .vaciar-btn:hover { background-color:#c0392b; }
+    .finalizar-btn { margin-top: 20px; margin-left: 10px; background-color: #27ae60; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer; }
+    .finalizar-btn:hover { background-color:#1f8b4d; }
 </style>
 
 <div class="carrito-container">
@@ -44,6 +46,9 @@
     </table>
     <form action="{{ url_for('vaciar_carrito') }}" method="get">
         <button class="vaciar-btn">Vaciar Carrito</button>
+    </form>
+    <form action="{{ url_for('finalizar_compra') }}" method="post" style="display:inline-block;">
+        <button class="finalizar-btn" type="submit">Finalizar compra</button>
     </form>
     {% else %}
         <p>No hay productos en el carrito.</p>

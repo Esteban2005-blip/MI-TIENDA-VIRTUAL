@@ -208,6 +208,56 @@ def vaciar_carrito():
     return redirect(url_for('productos'))
 
 
+@app.route('/carrito/finalizar', methods=['POST'])
+@login_required
+def finalizar_compra():
+    items = session.get('carrito', [])
+    if not items:
+        flash('Tu carrito esta vacio.', 'warning')
+        return redirect(url_for('ver_carrito'))
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_mysql_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Registra o actualiza al cliente asociado al usuario autenticado.
+        cursor.execute(
+            "SELECT id_cliente, total_compras FROM clientes WHERE email = %s",
+            (current_user.email,)
+        )
+        cliente = cursor.fetchone()
+
+        if cliente:
+            total_actual = int(cliente.get('total_compras') or 0)
+            cursor.execute(
+                "UPDATE clientes SET nombre = %s, total_compras = %s WHERE id_cliente = %s",
+                (current_user.nombre, total_actual + 1, cliente['id_cliente'])
+            )
+        else:
+            cursor.execute(
+                "INSERT INTO clientes (nombre, email, total_compras) VALUES (%s, %s, %s)",
+                (current_user.nombre, current_user.email, 1)
+            )
+
+        conn.commit()
+        session.pop('carrito', None)
+        flash('Compra finalizada con exito. Cliente registrado/actualizado.', 'success')
+        return redirect(url_for('clientes'))
+    except mysql.connector.Error as e:
+        if conn is not None:
+            conn.rollback()
+        print(f"Error al finalizar compra: {e}")
+        flash('No se pudo finalizar la compra por un error de base de datos.', 'danger')
+        return redirect(url_for('ver_carrito'))
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if conn is not None:
+            conn.close()
+
+
 
 @app.route('/facturas')
 @login_required
