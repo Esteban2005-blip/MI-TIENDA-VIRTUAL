@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Factura - Tienda Virtual{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Factura FAC-{{ factura.id_factura }}</h2>
+
+    <div class="feature-card" style="text-align:left; margin-bottom: 20px;">
+        <p><strong>Fecha:</strong> {{ factura.fecha_emision }}</p>
+        <p><strong>Estado:</strong> {{ factura.estado }}</p>
+        <p><strong>Método de pago:</strong> {{ factura.metodo_pago or '-' }}</p>
+        <p><strong>Total:</strong> ${{ "%.2f"|format(factura.total) }}</p>
+    </div>
+
+    <div class="feature-card" style="text-align:left; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 10px;">Datos del cliente</h3>
+        <p><strong>Nombre:</strong> {{ factura.cliente_nombre or '-' }}</p>
+        <p><strong>Email:</strong> {{ factura.cliente_email or '-' }}</p>
+        <p><strong>Teléfono:</strong> {{ factura.cliente_telefono or '-' }}</p>
+        <p><strong>Ciudad:</strong> {{ factura.cliente_ciudad or '-' }}</p>
+        <p><strong>Dirección de envío:</strong> {{ factura.direccion_envio or '-' }}</p>
+        <p><strong>Nota:</strong> {{ factura.nota or '-' }}</p>
+    </div>
+
+    <div class="feature-card" style="text-align:left; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 10px;">Productos</h3>
+        {% if items %}
+        <ul style="padding-left: 20px;">
+            {% for item in items %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No hay detalle de productos disponible para esta factura.</p>
+        {% endif %}
+    </div>
+
+    <a href="{{ url_for('facturas') }}" class="btn">Volver a Facturas</a>
+</div>
+{% endblock %}

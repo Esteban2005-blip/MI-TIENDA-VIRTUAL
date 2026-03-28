@@ -37,6 +37,19 @@ SQL_TABLAS = [
         fecha_registro  DATETIME      DEFAULT CURRENT_TIMESTAMP
     )
     """,
+    """
+    CREATE TABLE IF NOT EXISTS facturas (
+        id_factura      INT AUTO_INCREMENT PRIMARY KEY,
+        id_cliente      INT NOT NULL,
+        fecha_emision   DATETIME      DEFAULT CURRENT_TIMESTAMP,
+        total           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        metodo_pago     VARCHAR(50),
+        estado          VARCHAR(30)   NOT NULL DEFAULT 'Pagada',
+        direccion_envio VARCHAR(255),
+        nota            VARCHAR(255),
+        items_resumen   TEXT
+    )
+    """,
 ]
 
 def main():

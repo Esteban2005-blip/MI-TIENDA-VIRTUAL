@@ -2,6 +2,8 @@
 
 # ===== INICIO DE IMPORTS Y CONFIGURACIÓN ========== 
 import os
+import traceback
+from collections import Counter
 from fpdf import FPDF
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -23,6 +25,29 @@ from forms.producto_form import ProductoForm
 # Función de conexión MySQL
 def get_mysql_connection():
     return get_connection()
+
+
+def ensure_facturas_table(cursor):
+    cursor.execute(
+        """
+        CREATE TABLE IF NOT EXISTS facturas (
+            id_factura      INT AUTO_INCREMENT PRIMARY KEY,
+            id_cliente      INT NOT NULL,
+            fecha_emision   DATETIME      DEFAULT CURRENT_TIMESTAMP,
+            total           DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+            metodo_pago     VARCHAR(50),
+            estado          VARCHAR(30)   NOT NULL DEFAULT 'Pagada',
+            direccion_envio VARCHAR(255),
+            nota            VARCHAR(255),
+            items_resumen   TEXT
+        )
+        """
+    )
+
+
+def pdf_safe_text(value):
+    text = str(value or '')
+    return text.encode('latin-1', errors='replace').decode('latin-1')
 
 # ========== CONFIGURACIÓN FLASK Y EXTENSIONES ========== 
 app = Flask(__name__)
@@ -267,11 +292,31 @@ def finalizar_compra():
         flash('Completa todos los datos obligatorios para finalizar la compra.', 'warning')
         return redirect(url_for('ver_carrito'))
 
+    productos_compra = []
+    for prod_id in items:
+        producto = obtener_producto_por_id(prod_id)
+        if producto:
+            productos_compra.append(producto)
+
+    if not productos_compra:
+        flash('No se encontraron productos validos para generar la factura.', 'warning')
+        return redirect(url_for('ver_carrito'))
+
+    total_compra = sum(float(p.get('precio') or 0) for p in productos_compra)
+    conteo_ids = Counter(p.get('id') for p in productos_compra if p.get('id') is not None)
+    resumen_items = []
+    for producto_id, cantidad in conteo_ids.items():
+        prod = next((p for p in productos_compra if p.get('id') == producto_id), None)
+        if prod:
+            resumen_items.append(f"{prod.get('nombre', 'Producto')} x{cantidad}")
+    items_resumen = ' | '.join(resumen_items)
+
     conn = None
     cursor = None
     try:
         conn = get_mysql_connection()
         cursor = conn.cursor(dictionary=True)
+        ensure_facturas_table(cursor)
 
         # Mantiene compatibilidad con bases que todavia no tienen la columna direccion.
         cursor.execute("SHOW COLUMNS FROM clientes LIKE 'direccion'")
@@ -283,8 +328,10 @@ def finalizar_compra():
             (email,)
         )
         cliente = cursor.fetchone()
+        id_cliente = None
 
         if cliente:
+            id_cliente = cliente['id_cliente']
             total_actual = int(cliente.get('total_compras') or 0)
             if tiene_direccion:
                 cursor.execute(
@@ -307,18 +354,35 @@ def finalizar_compra():
                     "INSERT INTO clientes (nombre, email, telefono, ciudad, total_compras) VALUES (%s, %s, %s, %s, %s)",
                     (nombre, email, telefono, ciudad, 1)
                 )
+            id_cliente = cursor.lastrowid
+
+        cursor.execute(
+            """
+            INSERT INTO facturas (
+                id_cliente, total, metodo_pago, estado, direccion_envio, nota, items_resumen
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (id_cliente, total_compra, metodo_pago, 'Pagada', direccion, nota or None, items_resumen)
+        )
 
         conn.commit()
         session.pop('carrito', None)
-        flash(f'Compra finalizada con exito. Metodo de pago: {metodo_pago}.', 'success')
+        flash(f'Compra finalizada con exito. Factura #{cursor.lastrowid} generada. Metodo de pago: {metodo_pago}.', 'success')
         if nota:
             flash(f'Nota registrada: {nota}', 'info')
-        return redirect(url_for('clientes'))
+        return redirect(url_for('facturas'))
     except mysql.connector.Error as e:
         if conn is not None:
             conn.rollback()
         print(f"Error al finalizar compra: {e}")
         flash('No se pudo finalizar la compra por un error de base de datos.', 'danger')
+        return redirect(url_for('ver_carrito'))
+    except Exception as e:
+        if conn is not None:
+            conn.rollback()
+        print(f"Error inesperado al finalizar compra: {e}")
+        traceback.print_exc()
+        flash('Ocurrio un error inesperado al generar la factura.', 'danger')
         return redirect(url_for('ver_carrito'))
     finally:
         if cursor is not None:
@@ -331,8 +395,173 @@ def finalizar_compra():
 @app.route('/facturas')
 @login_required
 def facturas():
-    # Página de Facturas - Gestión de facturas
-    return render_template('facturas.html')
+    conn = None
+    cursor = None
+    try:
+        conn = get_mysql_connection()
+        cursor = conn.cursor(dictionary=True)
+        ensure_facturas_table(cursor)
+        cursor.execute(
+            """
+            SELECT
+                f.id_factura,
+                f.fecha_emision,
+                f.total,
+                f.estado,
+                f.metodo_pago,
+                c.nombre AS cliente_nombre
+            FROM facturas f
+            LEFT JOIN clientes c ON c.id_cliente = f.id_cliente
+            ORDER BY f.fecha_emision DESC
+            """
+        )
+        facturas_list = cursor.fetchall()
+        total_facturas = len(facturas_list)
+        ingresos_totales = sum(float(f.get('total') or 0) for f in facturas_list)
+        pendientes = sum(1 for f in facturas_list if str(f.get('estado') or '').lower() != 'pagada')
+        return render_template(
+            'facturas.html',
+            facturas=facturas_list,
+            total_facturas=total_facturas,
+            ingresos_totales=ingresos_totales,
+            pendientes=pendientes
+        )
+    except mysql.connector.Error as e:
+        print(f"Error al consultar facturas: {e}")
+        flash('No se pudo cargar la lista de facturas.', 'danger')
+        return render_template('facturas.html', facturas=[], total_facturas=0, ingresos_totales=0, pendientes=0)
+    except Exception as e:
+        print(f"Error inesperado en facturas: {e}")
+        traceback.print_exc()
+        flash('Ocurrio un error inesperado al cargar facturas.', 'danger')
+        return render_template('facturas.html', facturas=[], total_facturas=0, ingresos_totales=0, pendientes=0)
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if conn is not None:
+            conn.close()
+
+
+@app.route('/facturas/<int:id_factura>')
+@login_required
+def ver_factura(id_factura):
+    conn = None
+    cursor = None
+    try:
+        conn = get_mysql_connection()
+        cursor = conn.cursor(dictionary=True)
+        ensure_facturas_table(cursor)
+        cursor.execute(
+            """
+            SELECT
+                f.id_factura,
+                f.fecha_emision,
+                f.total,
+                f.estado,
+                f.metodo_pago,
+                f.direccion_envio,
+                f.nota,
+                f.items_resumen,
+                c.nombre AS cliente_nombre,
+                c.email AS cliente_email,
+                c.telefono AS cliente_telefono,
+                c.ciudad AS cliente_ciudad
+            FROM facturas f
+            LEFT JOIN clientes c ON c.id_cliente = f.id_cliente
+            WHERE f.id_factura = %s
+            """,
+            (id_factura,)
+        )
+        factura = cursor.fetchone()
+        if not factura:
+            flash('Factura no encontrada.', 'warning')
+            return redirect(url_for('facturas'))
+
+        items = []
+        if factura.get('items_resumen'):
+            items = [item.strip() for item in factura['items_resumen'].split('|') if item.strip()]
+
+        return render_template('factura_detalle.html', factura=factura, items=items)
+    except mysql.connector.Error as e:
+        print(f"Error al consultar factura: {e}")
+        flash('No se pudo abrir la factura.', 'danger')
+        return redirect(url_for('facturas'))
+    except Exception as e:
+        print(f"Error inesperado al abrir factura: {e}")
+        traceback.print_exc()
+        flash('Ocurrio un error inesperado al abrir la factura.', 'danger')
+        return redirect(url_for('facturas'))
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if conn is not None:
+            conn.close()
+
+
+@app.route('/facturas/reporte/pdf')
+@login_required
+def reporte_facturas_pdf():
+    conn = None
+    cursor = None
+    try:
+        conn = get_mysql_connection()
+        cursor = conn.cursor(dictionary=True)
+        ensure_facturas_table(cursor)
+        cursor.execute(
+            """
+            SELECT
+                f.id_factura,
+                f.fecha_emision,
+                f.total,
+                f.estado,
+                c.nombre AS cliente_nombre
+            FROM facturas f
+            LEFT JOIN clientes c ON c.id_cliente = f.id_cliente
+            ORDER BY f.fecha_emision DESC
+            """
+        )
+        facturas_list = cursor.fetchall()
+
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Arial', 'B', 14)
+        pdf.cell(0, 10, 'Reporte de Facturas', ln=True, align='C')
+        pdf.ln(6)
+        pdf.set_font('Arial', 'B', 10)
+        pdf.cell(24, 8, 'Factura', 1)
+        pdf.cell(54, 8, 'Cliente', 1)
+        pdf.cell(44, 8, 'Fecha', 1)
+        pdf.cell(30, 8, 'Total', 1)
+        pdf.cell(36, 8, 'Estado', 1)
+        pdf.ln()
+
+        pdf.set_font('Arial', '', 9)
+        for f in facturas_list:
+            fecha = str(f.get('fecha_emision') or '')
+            pdf.cell(24, 8, pdf_safe_text(f"FAC-{f.get('id_factura')}"), 1)
+            pdf.cell(54, 8, pdf_safe_text(str(f.get('cliente_nombre') or 'Sin cliente')[:30]), 1)
+            pdf.cell(44, 8, pdf_safe_text(fecha[:19]), 1)
+            pdf.cell(30, 8, pdf_safe_text(f"${float(f.get('total') or 0):.2f}"), 1)
+            pdf.cell(36, 8, pdf_safe_text(str(f.get('estado') or '-')[:20]), 1)
+            pdf.ln()
+
+        response = app.response_class(pdf.output(dest='S').encode('latin1'), mimetype='application/pdf')
+        response.headers['Content-Disposition'] = 'attachment; filename=reporte_facturas.pdf'
+        return response
+    except mysql.connector.Error as e:
+        print(f"Error de base de datos al generar reporte PDF de facturas: {e}")
+        flash('No se pudo generar el reporte PDF de facturas por un error de base de datos.', 'danger')
+        return redirect(url_for('facturas'))
+    except Exception as e:
+        print(f"Error inesperado al generar reporte PDF de facturas: {e}")
+        traceback.print_exc()
+        flash('Ocurrio un error inesperado al generar el reporte PDF de facturas.', 'danger')
+        return redirect(url_for('facturas'))
+    finally:
+        if cursor is not None:
+            cursor.close()
+        if conn is not None:
+            conn.close()
 
 
 

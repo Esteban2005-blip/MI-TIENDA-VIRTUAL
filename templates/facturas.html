@@ -7,8 +7,8 @@
     <h2>Gestión de Facturas</h2>
     
     <div class="section-buttons">
-        <button class="btn btn-primary">+ Nueva Factura</button>
-        <a href="{{ url_for('reporte_productos_pdf') }}" class="btn btn-secondary">Descargar Reporte PDF</a>
+        <a href="{{ url_for('productos') }}" class="btn btn-primary">+ Nueva Factura</a>
+        <a href="{{ url_for('reporte_facturas_pdf') }}" class="btn btn-secondary">Descargar Reporte PDF</a>
     </div>
 
     <div class="invoices-table">
@@ -19,51 +19,35 @@
                     <th>Cliente</th>
                     <th>Fecha</th>
                     <th>Monto</th>
+                    <th>Método</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
+                {% if facturas %}
+                {% for f in facturas %}
                 <tr>
-                    <td>FAC-001</td>
-                    <td>Juan Pérez</td>
-                    <td>2026-02-15</td>
-                    <td>$1,299.99</td>
-                    <td><span class="badge badge-paid">Pagada</span></td>
-                    <td><button class="btn-small">Ver</button></td>
+                    <td>FAC-{{ f.id_factura }}</td>
+                    <td>{{ f.cliente_nombre or 'Sin cliente' }}</td>
+                    <td>{{ f.fecha_emision }}</td>
+                    <td>${{ "%.2f"|format(f.total) }}</td>
+                    <td>{{ f.metodo_pago or '-' }}</td>
+                    <td>
+                        {% if (f.estado or '')|lower == 'pagada' %}
+                        <span class="badge badge-paid">{{ f.estado }}</span>
+                        {% else %}
+                        <span class="badge badge-pending">{{ f.estado or 'Pendiente' }}</span>
+                        {% endif %}
+                    </td>
+                    <td><a class="btn-small" href="{{ url_for('ver_factura', id_factura=f.id_factura) }}">Ver</a></td>
                 </tr>
+                {% endfor %}
+                {% else %}
                 <tr>
-                    <td>FAC-002</td>
-                    <td>María García</td>
-                    <td>2026-02-18</td>
-                    <td>$2,499.98</td>
-                    <td><span class="badge badge-paid">Pagada</span></td>
-                    <td><button class="btn-small">Ver</button></td>
+                    <td colspan="7" style="text-align:center;">No hay facturas generadas todavía.</td>
                 </tr>
-                <tr>
-                    <td>FAC-003</td>
-                    <td>Carlos López</td>
-                    <td>2026-02-19</td>
-                    <td>$899.99</td>
-                    <td><span class="badge badge-pending">Pendiente</span></td>
-                    <td><button class="btn-small">Ver</button></td>
-                </tr>
-                <tr>
-                    <td>FAC-004</td>
-                    <td>Ana Martínez</td>
-                    <td>2026-02-18</td>
-                    <td>$3,199.97</td>
-                    <td><span class="badge badge-paid">Pagada</span></td>
-                    <td><button class="btn-small">Ver</button></td>
-                </tr>
-                <tr>
-                    <td>FAC-005</td>
-                    <td>Roberto Rodríguez</td>
-                    <td>2026-02-17</td>
-                    <td>$1,599.98</td>
-                    <td><span class="badge badge-paid">Pagada</span></td>
-                    <td><button class="btn-small">Ver</button></td>
-                </tr>
+                {% endif %}
             </tbody>
         </table>
     </div>
@@ -72,20 +56,16 @@
         <h3>Resumen de Facturas</h3>
         <div class="stats-grid">
             <div class="stat-box">
-                <h4>5,234</h4>
+                <h4>{{ total_facturas }}</h4>
                 <p>Total de Facturas</p>
             </div>
             <div class="stat-box">
-                <h4>$485,320</h4>
+                <h4>${{ "%.2f"|format(ingresos_totales) }}</h4>
                 <p>Ingresos Totales</p>
             </div>
             <div class="stat-box">
-                <h4>$42,150</h4>
-                <p>Pendiente de Pago</p>
-            </div>
-            <div class="stat-box">
-                <h4>94%</h4>
-                <p>Tasa de Cobranza</p>
+                <h4>{{ pendientes }}</h4>
+                <p>Facturas Pendientes</p>
             </div>
         </div>
     </div>
