@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, NumberRange
 class ProductoForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired()])
     precio = DecimalField('Precio', validators=[DataRequired(), NumberRange(min=0)])
-    stock = IntegerField('Stock', validators=[DataRequired(), NumberRange(min=0)])
+    cantidad = IntegerField('Cantidad', validators=[DataRequired(), NumberRange(min=0)])
     descripcion = TextAreaField('Descripción')
     categoria = StringField('Categoría')
     imagen = StringField('Imagen (URL o ruta)')

@@ -7,6 +7,7 @@ from collections import Counter
 from fpdf import FPDF
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
@@ -54,6 +55,14 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.secret_key = os.environ.get('SECRET_KEY', 'devkey')
+
+# Render usa proxy reverso; esto preserva esquema/host real para sesión y CSRF.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+is_production = os.environ.get('RENDER') == 'true' or os.environ.get('FLASK_ENV') == 'production'
+app.config['SESSION_COOKIE_SECURE'] = is_production
+app.config['REMEMBER_COOKIE_SECURE'] = is_production
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -712,18 +721,38 @@ def eliminar_producto(id):
 @login_required
 def formulario_producto():
     form = ProductoForm()
-    if form.validate_on_submit():
-        crear_producto_db(
-            form.nombre.data,
-            form.descripcion.data,
-            form.precio.data,
-            form.cantidad.data,
-            form.categoria.data,
-            None
-        )
-        flash('Producto creado exitosamente', 'success')
-        return redirect(url_for('productos'))
-    return render_template('producto_form.html', form=form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            nombre = form.nombre.data
+            descripcion = form.descripcion.data
+            precio = form.precio.data
+            cantidad = form.cantidad.data
+            categoria = form.categoria.data
+        else:
+            # Fallback para formularios HTML legacy sin campos WTForms alineados.
+            nombre = request.form.get('nombre', '').strip()
+            descripcion = request.form.get('descripcion', '').strip()
+            precio = request.form.get('precio')
+            cantidad = request.form.get('cantidad', request.form.get('stock', 0))
+            categoria = request.form.get('categoria', '').strip()
+
+        try:
+            crear_producto_db(
+                nombre,
+                descripcion,
+                precio,
+                int(cantidad or 0),
+                categoria,
+                None
+            )
+            flash('Producto creado exitosamente', 'success')
+            return redirect(url_for('formulario_producto'))
+        except Exception as e:
+            print(f"Error al crear producto desde formulario: {e}")
+            flash('No se pudo crear el producto. Revisa los datos ingresados.', 'danger')
+
+    productos = obtener_productos_db()
+    return render_template('producto_form.html', form=form, productos=productos)
 
 
 # ===================== LOGOUT =====================

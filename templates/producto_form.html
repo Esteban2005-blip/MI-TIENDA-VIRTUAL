@@ -204,6 +204,7 @@
                 </ul>
             </div>
             <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
                 <div class="form-group">
                     <label for="nombre">📝 Nombre del Producto *</label>
                     <input 
