@@ -32,6 +32,11 @@
             <li><a href="{{ url_for('facturas') }}" class="nav-link">Facturas</a></li>
             <li><a href="{{ url_for('about') }}" class="nav-link">Acerca de</a></li>
             <li><a href="{{ url_for('contacto') }}" class="nav-link">Contacto</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('logout') }}" class="nav-link">Cerrar sesión</a></li>
+            {% else %}
+                <li><a href="{{ url_for('login') }}" class="nav-link">Iniciar sesión</a></li>
+            {% endif %}
         </ul>
     </nav>
     <script>
